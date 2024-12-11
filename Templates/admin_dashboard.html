@@ -1,0 +1,32 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Dashboard - InstaMark{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-title">Overview</div>
+    <div class="card-content">
+        <div class="card">
+            <i class="fas fa-users"></i>
+            <div class="number">150</div>
+            <div>Total Users</div>
+        </div>
+        <div class="card">
+            <i class="fas fa-calendar-check"></i>
+            <div class="number">120</div>
+            <div>Attendance Today</div>
+        </div>
+        <div class="card">
+            <i class="fas fa-user-check"></i>
+            <div class="number">100</div>
+            <div>Active Users</div>
+        </div>
+        <div class="card">
+            <i class="fas fa-calendar-alt"></i>
+            <div class="number">200</div>
+            <div>Total Attendance Sessions</div>
+        </div>
+    </div>
+</div>
+<!-- Additional content goes here -->
+{% endblock %}
