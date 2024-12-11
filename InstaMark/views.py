@@ -5,6 +5,9 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required,user_passes_test
 from . import forms
 
+def reports(request):
+    return render(request,'reports.html')
+
 def settings(request):
     return render(request,'settings.html')
 
