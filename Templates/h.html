@@ -1,107 +1,101 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>{% block title %}InstaMark Dashboard{% endblock %}</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - InstaMark</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* Add your existing styles here */
-        /* Sidebar specific styles */
-        .sidebar {
-            width: 60px;
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        header {
             background-color: #007BFF;
             color: white;
-            position: fixed;
-            top: 60px;
-            bottom: 0;
-            padding: 20px 0;
-            overflow-y: auto;
-            transition: width 0.3s;
-        }
-        .sidebar:hover {
-            width: 250px;
-        }
-        .sidebar a {
-            color: white;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
             padding: 10px 20px;
-            gap: 10px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
-        .sidebar a i {
+        header .logo {
             font-size: 1.5em;
-            width: 40px;
-            text-align: center;
+            font-weight: 700;
         }
-        .sidebar a span {
-            display: none;
-            transition: display 0.3s;
-        }
-        .sidebar:hover a span {
-            display: inline;
-        }
-        .sidebar a:hover, .sidebar a.active {
-            background-color: #0056b3;
-        }
-        /* Other styles remain the same */
     </style>
 </head>
-<body>
+<body class="bg-gray-100">
+
+<!-- Navbar -->
 <header>
     <div class="logo">
         InstaMark
     </div>
-    <div class="profile">
-        <span class="username">{{ user }}</span>
-        <div class="notifications">
-            <i class="fas fa-bell"></i>
-            <div class="dropdown-content">
-                <ul>
-                    <li>John Doe logged in at 10:00 AM</li>
-                    <li>Jane Smith marked as absent</li>
-                    <li>Michael Brown was late today</li>
-                </ul>
-            </div>
-        </div>
-        <div class="dropdown">
-            <img alt="Profile picture of the logged-in user" height="30" src="https://example.com/profile.jpg" width="30"/>
-            <div class="dropdown-content">
-                <a href="#">Profile Settings</a>
-                <a href="{% url 'logout' %}">Logout</a>
-            </div>
-        </div>
-    </div>
 </header>
-<div class="sidebar">
-    {% block sidebar %}
-    <!-- Sidebar elements will be injected dynamically based on the role -->
-    {% endblock %}
+<!-- Sign Up Section -->
+<div class="container mx-auto mt-10 p-6 bg-white shadow-md rounded-md max-w-md">
+    <h2 class="text-2xl font-bold text-center mb-6">Create an Account</h2>
+    <form method="POST" class="space-y-4">
+        {% csrf_token %}
+        <div>
+            <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+            <input type="text" name="username" id="username" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+        </div>
+        <div>
+            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+            <input type="email" name="email" id="email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+        </div>
+        <div>
+            <label for="password1" class="block text-sm font-medium text-gray-700">Password</label>
+            <input type="password" name="password1" id="password1" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+        </div>
+        <div>
+            <label for="password2" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+            <input type="password" name="password2" id="password2" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+        </div>
+        <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600">Sign Up</button>
+    </form>
+    
+    <div class="mt-6">
+        <p class="text-center text-gray-600">Or sign up with</p>
+        <div class="flex justify-center mt-4 space-x-4">
+            <a href="#" class="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-700 hover:bg-gray-100">
+                <i class="fab fa-google mr-2"></i> Google
+            </a>
+            <a href="#" class="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-700 hover:bg-gray-100">
+                <i class="fab fa-apple mr-2"></i> Apple
+            </a>
+        </div>
+    </div>
+
+    <p class="text-center mt-4">Already have an account? <a class="text-blue-500 hover:underline" href="{% url 'login' %}">Login</a> here</p>
+
+    {% if messages %}
+        <div class="mt-4 p-4 bg-green-100 text-green-700 rounded-md">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    {% if form.errors %}
+        <div class="mt-4 p-4 bg-red-100 text-red-700 rounded-md">
+            <ul>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
 </div>
-<div class="main-content">
-    {% block content %}
-    <!-- Main content will be injected here -->
-    {% endblock %}
-</div>
-<footer class="footer">
-    <div>
-        © 2024 InstaMark. All Rights Reserved.
-    </div>
-    <div>
-        <a href="#">Privacy Policy</a>
-        <a href="#">Terms of Service</a>
-        <a href="#">Support</a>
-    </div>
-    <div class="social-icons">
-        <i class="fab fa-linkedin"></i>
-        <i class="fab fa-twitter"></i>
-        <i class="fab fa-facebook"></i>
-    </div>
-</footer>
+
 </body>
 </html>
