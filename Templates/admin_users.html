@@ -1,20 +1,12 @@
-{% extends "dashboard_base.html" %}
+{% extends "admin_base.html" %}
 
-{% block title %}User  Management - InstaMark{% endblock %}
+{% block title %}User Management - InstaMark{% endblock %}
 
 <div class="sidebar">
     {% block sidebar %}
-    <a href="{% url 'attendance' %}">
+    <a class ='active' href="{% url 'admin_dashboard'%}">
         <i class="fas fa-tachometer-alt"></i>
-        <span>My Attendance</span>
-    </a>
-    <a href="{% url 'reports' %}">
-        <i class="fas fa-calendar-check"></i>
-        <span>My Reports</span>
-    </a>
-    <a href="{% url 'logout' %}">
-        <i class="fas fa-sign-out-alt"></i>
-        <span>Logout</span>
+        <span>Users</span>
     </a>
     {% endblock %}
 </div>

@@ -23,8 +23,8 @@ def settings(request):
 def attendance(request):
     return render(request,'attendance.html')
 
-def user_management(request):
-    return render(request,'user_management.html')
+def admin_users(request):
+    return render(request,'admin_users.html')
 
 def DataCapture():
     return render(request,'DataCapture.html')
