@@ -1,32 +1,35 @@
-{% extends "dashboard_base.html" %}
+{% extends 'dashboard_base.html' %}
 
-{% block title %}Dashboard - InstaMark{% endblock %}
+{% block sidebar %}
+<a href="{% url 'admin_dashboard' %}">
+    <i class="fas fa-tachometer-alt"></i>
+    <span>Admin Dashboard</span>
+</a>
+<a href="{% url 'user_management' %}">
+    <i class="fas fa-users"></i>
+    <span>User Management</span>
+</a>
+<a href="{% url 'attendance' %}">
+    <i class="fas fa-calendar-check"></i>
+    <span>Attendance</span>
+</a>
+<a href="{% url 'reports' %}">
+    <i class="fas fa-chart-line"></i>
+    <span>Attendance Reports</span>
+</a>
+<a href="{% url 'settings' %}">
+    <i class="fas fa-cogs"></i>
+    <span>Settings</span>
+</a>
+<a href="{% url 'logout' %}">
+    <i class="fas fa-sign-out-alt"></i>
+    <span>Logout</span>
+</a>
+{% endblock %}
 
 {% block content %}
 <div class="card">
-    <div class="card-title">Overview</div>
-    <div class="card-content">
-        <div class="card">
-            <i class="fas fa-users"></i>
-            <div class="number">150</div>
-            <div>Total Users</div>
-        </div>
-        <div class="card">
-            <i class="fas fa-calendar-check"></i>
-            <div class="number">120</div>
-            <div>Attendance Today</div>
-        </div>
-        <div class="card">
-            <i class="fas fa-user-check"></i>
-            <div class="number">100</div>
-            <div>Active Users</div>
-        </div>
-        <div class="card">
-            <i class="fas fa-calendar-alt"></i>
-            <div class="number">200</div>
-            <div>Total Attendance Sessions</div>
-        </div>
-    </div>
+    <h1>Admin Dashboard</h1>
+    <p>Welcome to the admin dashboard.</p>
 </div>
-<!-- Additional content goes here -->
 {% endblock %}

@@ -1,263 +1,261 @@
-{% load static %}
-<!DOCTYPE html>
-<html>
+<html lang="en">
  <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <title>
    Attendance Management System
   </title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
-  <style>
-   body {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        header {
-            background-color: #007BFF;
-            color: white;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        header .logo {
-            font-size: 24px;
-            font-weight: 700;
-        }
-        header nav a {
-            color: white;
-            margin: 0 10px;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        header .auth-buttons a {
-            background-color: white;
-            color: #007BFF;
-            padding: 5px 15px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: 500;
-            margin-left: 10px;
-        }
-        .hero {
-            background: url('static/img/bg.png') no-repeat center center/cover;
-            color: white;
-            text-align: center;
-            padding: 150px 20px; /* Increase the padding to make the image section larger */
-            height: 55vh; /* Make the hero section take full height of the viewport */
-            background-size: cover; /* Ensure the image covers the entire section */
-            background-position: center; /* Ensure the image is centered */
-}
-
-        .hero h1 {
-            font-size: 48px;
-            margin: 0;
-        }
-        .hero p {
-            font-size: 24px;
-            margin: 10px 0 20px;
-        }
-        .hero .cta-btn {
-            background-color: #007BFF;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: 500;
-            margin-top: 20px; /* Move the button a little bit down */
-        }
-        .features, .benefits, .testimonials, footer {
-            padding: 50px 20px;
-            text-align: center;
-        }
-        .features h2, .benefits h2, .testimonials h2 {
-            font-size: 36px;
-            margin-bottom: 20px;
-        }
-        .features .feature-item, .benefits .benefit-item {
-            display: inline-block;
-            width: 30%;
-            margin: 0 1.5%;
-            text-align: left;
-        }
-        .features .feature-item i, .benefits .benefit-item i {
-            font-size: 48px;
-            color: #007BFF;
-        }
-        .features .feature-item p, .benefits .benefit-item p {
-            font-size: 18px;
-            margin: 10px 0;
-        }
-        .testimonials .testimonial-item {
-            display: inline-block;
-            width: 30%;
-            margin: 0 1.5%;
-            text-align: left;
-        }
-        .testimonials .testimonial-item img {
-            border-radius: 50%;
-            width: 80px;
-            height: 80px;
-        }
-        .testimonials .testimonial-item p {
-            font-size: 18px;
-            margin: 10px 0;
-        }
-        footer {
-            background-color: #007BFF;
-            color: white;
-        }
-        footer a {
-            color: white;
-            text-decoration: none;
-            margin: 0 10px;
-        }
-        footer .social-icons i {
-            margin: 0 5px;
-        }
-  </style>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
  </head>
- <body>
-  <header>
-   <div class="logo">
+ <body class="font-roboto bg-gray-100">
+  <header class="bg-blue-600 text-white p-4 flex justify-between items-center">
+   <div class="text-2xl font-bold">
     InstaMark
    </div>
-   <nav>
-    <a href="#">
-     Home
-    </a>
-    <a href="#">
-     Features
-    </a>
-    <a href="#">
-     Contact Us
-    </a>
-   </nav>
-   <div class="auth-buttons">
-    <a href="{% url 'signup' %}">
-     Sign Up
-    </a>
-    <a href="{% url 'login' %}">
+   <div class="space-x-2">
+    <a class="bg-white text-blue-600 px-4 py-2 rounded hover:bg-gray-200" href="{% url 'login' %}">
      Login
     </a>
    </div>
   </header>
-  <section class="hero">
-   <h1>
+  <section class="hero bg-cover bg-center text-white text-center py-32" style="background-image: url('https://placehold.co/1920x1080');">
+   <h1 class="text-5xl font-bold mb-4">
     Simplify Attendance Management with AI
    </h1>
-   <p>
+   <p class="text-xl mb-6">
     Track, Manage, and Report Attendance with Ease
    </p>
-   <a class="cta-btn" href="{% url 'signup' %}">
+   <a class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700" href="{% url 'signup' %}">
     Get Started
    </a>
   </section>
-  <section class="features">
-   <h2>
+  <section class="features py-20 bg-white text-center">
+   <h2 class="text-4xl font-bold mb-10">
     Features
    </h2>
-   <div class="feature-item">
-    <i class="fas fa-camera">
-    </i>
-    <p>
-     AI-based facial recognition for attendance tracking
-    </p>
-   </div>
-   <div class="feature-item">
-    <i class="fas fa-user-shield">
-    </i>
-    <p>
-     Role-based dashboards (Admin, Manager, User)
-    </p>
-   </div>
-   <div class="feature-item">
-    <i class="fas fa-file-alt">
-    </i>
-    <p>
-     Detailed attendance reports with filtering options
-    </p>
+   <div class="container mx-auto flex flex-wrap justify-center">
+    <div class="feature-item w-full md:w-1/3 p-4">
+     <div class="bg-gray-100 p-6 rounded-lg shadow-lg">
+      <i class="fas fa-camera text-4xl text-blue-600 mb-4">
+      </i>
+      <p class="text-lg">
+       AI-based facial recognition for attendance tracking
+      </p>
+     </div>
+    </div>
+    <div class="feature-item w-full md:w-1/3 p-4">
+     <div class="bg-gray-100 p-6 rounded-lg shadow-lg">
+      <i class="fas fa-user-shield text-4xl text-blue-600 mb-4">
+      </i>
+      <p class="text-lg">
+       Role-based dashboards (Admin, Manager, User)
+      </p>
+     </div>
+    </div>
+    <div class="feature-item w-full md:w-1/3 p-4">
+     <div class="bg-gray-100 p-6 rounded-lg shadow-lg">
+      <i class="fas fa-file-alt text-4xl text-blue-600 mb-4">
+      </i>
+      <p class="text-lg">
+       Detailed attendance reports with filtering options
+      </p>
+     </div>
+    </div>
    </div>
   </section>
-  <section class="benefits">
-   <h2>
+  <section class="benefits py-20 bg-gray-100 text-center">
+   <h2 class="text-4xl font-bold mb-10">
     Benefits
    </h2>
-   <div class="benefit-item">
-    <i class="fas fa-chart-line">
-    </i>
-    <p>
-     Increased productivity
-    </p>
-   </div>
-   <div class="benefit-item">
-    <i class="fas fa-clock">
-    </i>
-    <p>
-     Streamlined attendance tracking
-    </p>
-   </div>
-   <div class="benefit-item">
-    <i class="fas fa-lock">
-    </i>
-    <p>
-     Secure and easy-to-use interface
-    </p>
+   <div class="container mx-auto flex flex-wrap justify-center">
+    <div class="benefit-item w-full md:w-1/3 p-4">
+     <div class="bg-white p-6 rounded-lg shadow-lg">
+      <i class="fas fa-chart-line text-4xl text-blue-600 mb-4">
+      </i>
+      <p class="text-lg">
+       Increased productivity
+      </p>
+     </div>
+    </div>
+    <div class="benefit-item w-full md:w-1/3 p-4">
+     <div class="bg-white p-6 rounded-lg shadow-lg">
+      <i class="fas fa-clock text-4xl text-blue-600 mb-4">
+      </i>
+      <p class="text-lg">
+       Streamlined attendance tracking
+      </p>
+     </div>
+    </div>
+    <div class="benefit-item w-full md:w-1/3 p-4">
+     <div class="bg-white p-6 rounded-lg shadow-lg">
+      <i class="fas fa-lock text-4xl text-blue-600 mb-4">
+      </i>
+      <p class="text-lg">
+       Secure and easy-to-use interface
+      </p>
+     </div>
+    </div>
    </div>
   </section>
-  <section class="testimonials">
-   <h2>
-    What Our Users Say
+  <section class="how-it-works py-20 bg-white text-center">
+   <h2 class="text-4xl font-bold mb-10">
+    How It Works
    </h2>
-   <div class="testimonial-item">
-    <img alt="Portrait of a satisfied user" height="80" src="https://storage.googleapis.com/a1aa/image/AQTk1XAKKh6sJxjCKYHiSRxnN9RhuEAmbcc5nVjgAwaNoYeJA.jpg" width="80"/>
-    <p>
-     "This system has revolutionized our attendance tracking process!"
-    </p>
-   </div>
-   <div class="testimonial-item">
-    <img alt="Portrait of a happy user" height="80" src="https://storage.googleapis.com/a1aa/image/iTcmC7LPLUYVIBejX2OQ2D9ttZoJfumNtigpEF824il3gi5TA.jpg" width="80"/>
-    <p>
-     "The AI-based facial recognition is incredibly accurate and easy to use."
-    </p>
-   </div>
-   <div class="testimonial-item">
-    <img alt="Portrait of a pleased user" height="80" src="https://storage.googleapis.com/a1aa/image/xlmWvUxteK0NTaKqCgpXefY7XM9qKZFGfMPJuxqGTeTZGUMfE.jpg" width="80"/>
-    <p>
-     "Our productivity has increased significantly since we started using InstaMark."
-    </p>
+   <div class="container mx-auto flex flex-wrap justify-center">
+    <div class="how-item w-full md:w-1/3 p-4">
+     <div class="bg-gray-100 p-6 rounded-lg shadow-lg">
+      <i class="fas fa-user-plus text-4xl text-blue-600 mb-4">
+      </i>
+      <p class="text-lg">
+       1. Sign Up and Create an Account
+      </p>
+     </div>
+    </div>
+    <div class="how-item w-full md:w-1/3 p-4">
+     <div class="bg-gray-100 p-6 rounded-lg shadow-lg">
+      <i class="fas fa-camera-retro text-4xl text-blue-600 mb-4">
+      </i>
+      <p class="text-lg">
+       2. Set Up Facial Recognition
+      </p>
+     </div>
+    </div>
+    <div class="how-item w-full md:w-1/3 p-4">
+     <div class="bg-gray-100 p-6 rounded-lg shadow-lg">
+      <i class="fas fa-chart-bar text-4xl text-blue-600 mb-4">
+      </i>
+      <p class="text-lg">
+       3. Track and Manage Attendance
+      </p>
+     </div>
+    </div>
    </div>
   </section>
-  <footer>
-   <p>
-    © 2024 InstaMark. All rights reserved.
-   </p>
-   <div>
-    <a href="#">
-     Privacy Policy
-    </a>
-    <a href="#">
-     Terms of Service
-    </a>
-    <a href="#">
-     Support
-    </a>
+  <section class="pricing py-20 bg-gray-100 text-center">
+   <h2 class="text-4xl font-bold mb-10">
+    Pricing Plans
+   </h2>
+   <div class="container mx-auto flex flex-wrap justify-center">
+    <div class="pricing-item w-full md:w-1/3 p-4">
+     <div class="bg-white p-6 rounded-lg shadow-lg h-full">
+      <h3 class="text-2xl font-bold mb-4">
+       Basic Plan
+      </h3>
+      <p class="text-lg mb-4">
+       $10/month
+      </p>
+      <ul class="text-left mb-4">
+       <li class="mb-2">
+        <i class="fas fa-check text-green-500">
+        </i>
+        Basic Attendance Tracking
+       </li>
+       <li class="mb-2">
+        <i class="fas fa-check text-green-500">
+        </i>
+        Email Support
+       </li>
+      </ul>
+      <a class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700" href="#">
+       Choose Plan
+      </a>
+     </div>
+    </div>
+    <div class="pricing-item w-full md:w-1/3 p-4">
+     <div class="bg-white p-6 rounded-lg shadow-lg h-full">
+      <h3 class="text-2xl font-bold mb-4">
+       Pro Plan
+      </h3>
+      <p class="text-lg mb-4">
+       $30/month
+      </p>
+      <ul class="text-left mb-4">
+       <li class="mb-2">
+        <i class="fas fa-check text-green-500">
+        </i>
+        Advanced Attendance Tracking
+       </li>
+       <li class="mb-2">
+        <i class="fas fa-check text-green-500">
+        </i>
+        Priority Email Support
+       </li>
+       <li class="mb-2">
+        <i class="fas fa-check text-green-500">
+        </i>
+        Custom Reports
+       </li>
+      </ul>
+      <a class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700" href="#">
+       Choose Plan
+      </a>
+     </div>
+    </div>
+    <div class="pricing-item w-full md:w-1/3 p-4">
+     <div class="bg-white p-6 rounded-lg shadow-lg h-full">
+      <h3 class="text-2xl font-bold mb-4">
+       Enterprise Plan
+      </h3>
+      <p class="text-lg mb-4">
+       Contact Us
+      </p>
+      <ul class="text-left mb-4">
+       <li class="mb-2">
+        <i class="fas fa-check text-green-500">
+        </i>
+        All Pro Features
+       </li>
+       <li class="mb-2">
+        <i class="fas fa-check text-green-500">
+        </i>
+        Dedicated Account Manager
+       </li>
+       <li class="mb-2">
+        <i class="fas fa-check text-green-500">
+        </i>
+        Custom Integrations
+       </li>
+      </ul>
+      <a class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700" href="#">
+       Contact Us
+      </a>
+     </div>
+    </div>
    </div>
-   <div class="social-icons">
-    <a href="#">
-     <i class="fab fa-linkedin">
-     </i>
-    </a>
-    <a href="#">
-     <i class="fab fa-twitter">
-     </i>
-    </a>
-    <a href="#">
-     <i class="fab fa-facebook">
-     </i>
-    </a>
+  </section>
+  <footer class="bg-blue-600 text-white py-4">
+   <div class="container mx-auto text-center flex flex-col md:flex-row items-center justify-between">
+    <p class="mb-4 md:mb-0">
+     © 2024 InstaMark. All rights reserved.
+    </p>
+    <div class="flex space-x-4 mb-4 md:mb-0">
+     <a class="hover:text-gray-200" href="#">
+      Privacy Policy
+     </a>
+     <a class="hover:text-gray-200" href="#">
+      Terms of Service
+     </a>
+     <a class="hover:text-gray-200" href="#">
+      Support
+     </a>
+    </div>
+    <div class="social-icons flex space-x-4">
+     <a class="hover:text-gray-200" href="#">
+      <i class="fab fa-linkedin">
+      </i>
+     </a>
+     <a class="hover:text-gray-200" href="#">
+      <i class="fab fa-twitter">
+      </i>
+     </a>
+     <a class="hover:text-gray-200" href="#">
+      <i class="fab fa-facebook">
+      </i>
+     </a>
+    </div>
    </div>
   </footer>
  </body>

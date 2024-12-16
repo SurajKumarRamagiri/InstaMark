@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{% block title %}InstaMark Dashboard{% endblock %}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <style>
+        /* Add your existing styles here */
+        /* Sidebar specific styles */
+        .sidebar {
+            width: 60px;
+            background-color: #007BFF;
+            color: white;
+            position: fixed;
+            top: 60px;
+            bottom: 0;
+            padding: 20px 0;
+            overflow-y: auto;
+            transition: width 0.3s;
+        }
+        .sidebar:hover {
+            width: 250px;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            gap: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .sidebar a i {
+            font-size: 1.5em;
+            width: 40px;
+            text-align: center;
+        }
+        .sidebar a span {
+            display: none;
+            transition: display 0.3s;
+        }
+        .sidebar:hover a span {
+            display: inline;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            background-color: #0056b3;
+        }
+        /* Other styles remain the same */
+    </style>
+</head>
+<body>
+<header>
+    <div class="logo">
+        InstaMark
+    </div>
+    <div class="profile">
+        <span class="username">{{ user }}</span>
+        <div class="notifications">
+            <i class="fas fa-bell"></i>
+            <div class="dropdown-content">
+                <ul>
+                    <li>John Doe logged in at 10:00 AM</li>
+                    <li>Jane Smith marked as absent</li>
+                    <li>Michael Brown was late today</li>
+                </ul>
+            </div>
+        </div>
+        <div class="dropdown">
+            <img alt="Profile picture of the logged-in user" height="30" src="https://example.com/profile.jpg" width="30"/>
+            <div class="dropdown-content">
+                <a href="#">Profile Settings</a>
+                <a href="{% url 'logout' %}">Logout</a>
+            </div>
+        </div>
+    </div>
+</header>
+<div class="sidebar">
+    {% block sidebar %}
+    <!-- Sidebar elements will be injected dynamically based on the role -->
+    {% endblock %}
+</div>
+<div class="main-content">
+    {% block content %}
+    <!-- Main content will be injected here -->
+    {% endblock %}
+</div>
+<footer class="footer">
+    <div>
+        © 2024 InstaMark. All Rights Reserved.
+    </div>
+    <div>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Support</a>
+    </div>
+    <div class="social-icons">
+        <i class="fab fa-linkedin"></i>
+        <i class="fab fa-twitter"></i>
+        <i class="fab fa-facebook"></i>
+    </div>
+</footer>
+</body>
+</html>

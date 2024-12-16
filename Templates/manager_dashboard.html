@@ -1,0 +1,26 @@
+{% extends 'dashboard_base.html' %}
+
+<div class="sidebar">
+    {% block sidebar %}
+    <a href="{% url 'manAttendance' %}">
+        <i class="fas fa-tachometer-alt"></i>
+        <span>Manage Attendance</span>
+    </a>
+    <a href="{% url 'reports' %}">
+        <i class="fas fa-calendar-check"></i>
+        <span>My Reports</span>
+    </a>
+    <a href="{% url 'logout' %}">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+    </a>
+    {% endblock %}
+</div>
+
+
+{% block content %}
+<div class="card">
+    <h1>Manager Dashboard</h1>
+    <p>Welcome to the manager dashboard.</p>
+</div>
+{% endblock %}

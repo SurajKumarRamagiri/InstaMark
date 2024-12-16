@@ -27,12 +27,13 @@ SECRET_KEY = "django-insecure-n2p7+plp6qpd276zkp8_9d!ktre9gop+5*a-h36b1zam@=u$n)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'rest_framework',
     'widget_tweaks',
     'bootstrap4',
     "django.contrib.admin",
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -135,3 +137,5 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 STATICFILES_DIRS = [BASE_DIR / "static"]    # Adjust according to your folder structure
 
 LOGIN_URL = '/login/'  # The URL for your custom login page
+
+

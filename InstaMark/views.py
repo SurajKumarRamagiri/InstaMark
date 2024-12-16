@@ -1,9 +1,18 @@
+from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm,AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required,user_passes_test
 from . import forms
+
+def manAttendance(request):
+    return render(request, 'manAttendance.html')
+
+@login_required
+def manager_dashboard(request):
+    user=request.user.username
+    return render(request, 'manager_dashboard.html')
 
 def reports(request):
     return render(request,'reports.html')
@@ -47,14 +56,18 @@ def signup(request):
 
 
 @login_required
-def dashboard(request):
-    return render(request,'dashboard.html')
+def user_dashboard(request):
+    user=request.user.username
+    return render(request,'user_dashboard.html')
 
 def user_login(request):
     if request.user.is_authenticated:
         if request.user.is_superuser:
             return redirect('admin_dashboard')
-        return redirect('dashboard')         # Redirect to the home page if the user is logged in
+        elif request.user.groups.filter(name='Manager').exists():
+            return redirect('manager_dashboard')
+        else:
+            return redirect('user_dashboard')         # Redirect to the home page if the user is logged in
 
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
@@ -64,10 +77,12 @@ def user_login(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                if user.is_superuser:
+                if request.user.groups.filter(name='Administrator').exists():
                     return redirect('admin_dashboard')
+                elif request.user.groups.filter(name='Manager').exists():
+                    return redirect('manager_dashboard')
                 else:
-                    return redirect('dashboard')  # Redirect to a dashboard page after successful login
+                    return redirect('user_dashboard')  # Redirect to a dashboard page after successful login
             else:
                 form.add_error(None, 'Invalid username or password')
     else:

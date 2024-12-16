@@ -2,6 +2,23 @@
 
 {% block title %}Attendance Management - InstaMark{% endblock %}
 
+<div class="sidebar">
+    {% block sidebar %}
+    <a href="{% url 'attendance' %}">
+        <i class="fas fa-tachometer-alt"></i>
+        <span>My Attendance</span>
+    </a>
+    <a href="{% url 'reports' %}">
+        <i class="fas fa-calendar-check"></i>
+        <span>My Reports</span>
+    </a>
+    <a href="{% url 'logout' %}">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+    </a>
+    {% endblock %}
+</div>
+
 {% block content %}
 <div class="card">
     <div class="card-title">Attendance Management</div>

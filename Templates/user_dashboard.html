@@ -1,0 +1,25 @@
+{% extends 'dashboard_base.html' %}
+
+<div class="sidebar">
+    {% block sidebar %}
+    <a href="{% url 'attendance' %}">
+        <i class="fas fa-tachometer-alt"></i>
+        <span>My Attendance</span>
+    </a>
+    <a href="{% url 'reports' %}">
+        <i class="fas fa-calendar-check"></i>
+        <span>My Reports</span>
+    </a>
+    <a href="{% url 'logout' %}">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+    </a>
+    {% endblock %}
+</div>
+
+{% block content %}
+<div class="card">
+    <h1>Employee Dashboard</h1>
+    <p>Welcome to the employee dashboard.</p>
+</div>
+{% endblock %}
