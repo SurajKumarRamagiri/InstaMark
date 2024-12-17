@@ -1214,3 +1214,233 @@ attendance
 
 {% endblock %}
 
+admin_users
+{% extends "admin_base.html" %}
+
+{% block title %}User Management - InstaMark{% endblock %}
+
+<div class="sidebar">
+    {% block sidebar %}
+    <a class="active" href="{% url 'admin_dashboard' %}">
+        <i class="fas fa-tachometer-alt"></i>
+        <span>Users</span>
+    </a>
+    {% endblock %}
+</div>
+
+{% block content %}
+<html>
+<head>
+    <title>User Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .user-management {
+            max-width: 1200px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .user-management h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .filter-panel {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .filter-panel input, .filter-panel select, .filter-panel button {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        .filter-panel button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        .filter-panel button:hover {
+            background-color: #0056b3;
+        }
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .user-table th, .user-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .user-table th {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .user-table tr:hover {
+            background-color: #f1f1f1;
+        }
+        .user-table button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .user-table button.edit {
+            background-color: #ffc107;
+            color: #fff;
+        }
+        .user-table button.delete {
+            background-color: #dc3545;
+            color: #fff;
+        }
+        .user-table button.register-face {
+            background-color: #28a745;
+            color: #fff;
+        }
+        .create-user-btn {
+            display: block;
+            width: 200px;
+            margin: 0 auto;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .create-user-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="user-management">
+        <h1>User Management</h1>
+
+        <div class="filter-panel">
+            <input type="text" placeholder="Search by name, email, or username..." />
+            <select>
+                <option value="">Filter by Role</option>
+                <option value="superuser">Superuser</option>
+                <option value="staff">Staff</option>
+                <option value="regular">Regular User</option>
+            </select>
+            <select>
+                <option value="">Filter by Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+            </select>
+            <button>Search</button>
+        </div>
+
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.first_name }} {{ user.last_name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        {% if user.is_superuser %}
+                            Superuser
+                        {% elif user.is_staff %}
+                            Staff
+                        {% else %}
+                            Regular User
+                        {% endif %}
+                    </td>
+                    <td>{{ user.is_active|yesno:"Active,Inactive" }}</td>
+                    <td>
+                        <button class="edit">Edit</button>
+                        <button class="delete">Delete</button>
+                        <button class="register-face">Register Face</button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center;">No users found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Button to open Add User modal -->
+        <button class="create-user-btn" onclick="openAddUserModal()">Create New User</button>
+    </div>
+
+    <!-- Add User Modal -->
+    <div id="addUserModal" style="display:none;">
+        <h2>Add New User</h2>
+        <form method="POST" action="{% url 'add_user' %}">
+            {% csrf_token %}
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            
+            <label for="first_name">First Name:</label>
+            <input type="text" id="first_name" name="first_name" required>
+            
+            <label for="last_name">Last Name:</label>
+            <input type="text" id="last_name" name="last_name" required>
+            
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            
+            <label for="role">Role:</label>
+            <select id="role" name="role" required>
+                <option value="superuser">Superuser</option>
+                <option value="staff">Staff</option>
+                <option value="regular">Regular User</option>
+            </select>
+
+            <label for="is_active">Active:</label>
+            <select id="is_active" name="is_active" required>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+
+            <button type="submit">Add User</button>
+            <button type="button" onclick="closeAddUserModal()">Cancel</button>
+        </form>
+    </div>
+
+    <script>
+        function openAddUserModal() {
+            document.getElementById('addUserModal').style.display = 'block';
+        }
+        function closeAddUserModal() {
+            document.getElementById('addUserModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
+
+{% endblock %}

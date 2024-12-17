@@ -118,7 +118,7 @@ CREATE TABLE `auth_user` (
   `date_joined` datetime(6) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -127,7 +127,7 @@ CREATE TABLE `auth_user` (
 
 LOCK TABLES `auth_user` WRITE;
 /*!40000 ALTER TABLE `auth_user` DISABLE KEYS */;
-INSERT INTO `auth_user` VALUES (1,'pbkdf2_sha256$870000$xCAc3PiJeNhhS27KlmDX9c$oVsZsYHSICMPg0w5XLICBmcELEwDV8SdmmEv/9CLtTU=','2024-12-16 04:59:17.218489',1,'admin','','','',1,1,'2024-12-08 12:42:14.000000'),(2,'pbkdf2_sha256$870000$nqHcUwQ7cqJciWNHYSvVMV$a5B0ezPqfXLzFpYeai2+EL+nRgIkE+Ixyl3Q24zDizg=','2024-12-14 19:11:42.731812',0,'user','','','',0,1,'2024-12-08 13:03:57.000000'),(3,'pbkdf2_sha256$870000$ko0phuUI5otICs6VbaSkSo$7H2BKPTFXqG6kNAWOsNzvK4zkT4U6jiMUu68/NR1qq4=','2024-12-11 13:57:29.483666',1,'project-admin','','','surajramagiri0503@gmail.com',1,1,'2024-12-08 17:53:14.056580'),(4,'pbkdf2_sha256$870000$cUrujetLGyVK76RfzboHZo$UqAMvdSNl+pEBvoH/KLq31WvGu5AkQWQ6RHQZDe2458=','2024-12-16 06:06:18.012883',0,'manager','','','',0,1,'2024-12-11 03:51:25.000000'),(5,'pbkdf2_sha256$870000$Oynib8BYDl4pOVt5MfPr8F$L3TxlobbvsxGISYwZUDiZUzUR2uaQ4RY57/0IhUn/eU=','2024-12-13 09:07:05.755811',0,'janagama','','','',0,1,'2024-12-13 09:02:53.830143');
+INSERT INTO `auth_user` VALUES (1,'pbkdf2_sha256$870000$xCAc3PiJeNhhS27KlmDX9c$oVsZsYHSICMPg0w5XLICBmcELEwDV8SdmmEv/9CLtTU=','2024-12-17 10:05:39.111566',1,'admin','','','',1,1,'2024-12-08 12:42:14.000000'),(2,'pbkdf2_sha256$870000$nqHcUwQ7cqJciWNHYSvVMV$a5B0ezPqfXLzFpYeai2+EL+nRgIkE+Ixyl3Q24zDizg=','2024-12-17 06:41:40.671844',0,'user','','','',0,1,'2024-12-08 13:03:57.000000'),(3,'pbkdf2_sha256$870000$ko0phuUI5otICs6VbaSkSo$7H2BKPTFXqG6kNAWOsNzvK4zkT4U6jiMUu68/NR1qq4=','2024-12-11 13:57:29.483666',1,'project-admin','','','surajramagiri0503@gmail.com',1,1,'2024-12-08 17:53:14.056580'),(4,'pbkdf2_sha256$870000$cUrujetLGyVK76RfzboHZo$UqAMvdSNl+pEBvoH/KLq31WvGu5AkQWQ6RHQZDe2458=','2024-12-16 08:35:51.747006',0,'manager','','','',0,1,'2024-12-11 03:51:25.000000'),(5,'pbkdf2_sha256$870000$Oynib8BYDl4pOVt5MfPr8F$L3TxlobbvsxGISYwZUDiZUzUR2uaQ4RY57/0IhUn/eU=','2024-12-13 09:07:05.755811',0,'janagama','','','',0,1,'2024-12-13 09:02:53.830143'),(11,'pbkdf2_sha256$870000$AgMC45AY6h8xix17zAVlXc$+TGvakwYbSJXoD1Cx4wDL5kmKECJhc+U35oxZ/gCKpk=','2024-12-17 10:05:28.035411',0,'jarvis','jarvis','assistant','jarvis@gmail.com',1,1,'2024-12-17 10:05:03.487927');
 /*!40000 ALTER TABLE `auth_user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -297,7 +297,7 @@ CREATE TABLE `django_session` (
 
 LOCK TABLES `django_session` WRITE;
 /*!40000 ALTER TABLE `django_session` DISABLE KEYS */;
-INSERT INTO `django_session` VALUES ('u2fn6kjgd3e3kjhdby7dn5nluq8i44j8','.eJxVjMsOwiAQRf-FtSEDQWZw6d5vIMNLqgaS0q4a_12bdKHbe865m_C8LtWvI89-SuIijDj9boHjM7cdpAe3e5ext2WegtwVedAhbz3l1_Vw_w4qj_qtdTyzUkVHi0AuOASlMjJypESkwCpLhR0gadAlUHYaXEZEQ2xiCeL9AcQTNyY:1tN4FG:XUWf3_85mJb4QFH67Lru-tpcsUWrt0a02MCU9nr5c88','2024-12-30 06:06:18.021980'),('wg1m2ak816oyi5r46ftj7ytihygj9n9x','e30:1tMWwb:ajQ5vlH4po3IR6H7KVNYwrLmrwCOV7VosYfo4KVo2ng','2024-12-28 18:32:49.134615');
+INSERT INTO `django_session` VALUES ('wg1m2ak816oyi5r46ftj7ytihygj9n9x','e30:1tMWwb:ajQ5vlH4po3IR6H7KVNYwrLmrwCOV7VosYfo4KVo2ng','2024-12-28 18:32:49.134615'),('wykvdz4lz8llpodotuq4q0olfxq9cu3b','.eJxVjDkOwjAUBe_iGlmx-XihpOcM1l8cHEC2FCcV4u4QKQW0b2beSyVcl5LWnuc0iTorow6_GyE_ct2A3LHemuZWl3kivSl6p11fm-TnZXf_Dgr28q2dEBhEYshgo7fgYnTELsIQiQRdOPI4BmEAAcPBmQhi2NMgJ_LWqvcH7vA4CA:1tNUSR:z2-E-tnaMJJpAsEah4o55QoGLP5L3cUYYhzL9SOyVfM','2024-12-31 10:05:39.121662');
 /*!40000 ALTER TABLE `django_session` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -483,4 +483,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-12-16 13:23:02
+-- Dump completed on 2024-12-17 15:53:44

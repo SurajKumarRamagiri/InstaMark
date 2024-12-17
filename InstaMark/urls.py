@@ -21,7 +21,9 @@ from . import views
 from django.contrib.auth.views import LogoutView
 
 urlpatterns = [
-    path('ManageAttendance/', views.manAttendance,name='manAttendance'),
+    path('delete-user/<int:user_id>/', views.delete_user, name='delete_user'),
+    path('update-user/<int:user_id>/', views.update_user, name='update_user'),
+    path('add_user/', views.add_user, name='add_user'),
     path('manager/dashboard/', views.manager_dashboard,name='manager_dashboard'),
     path('reports/',views.reports,name='reports'),
     path('settings/',views.settings,name='settings'),
