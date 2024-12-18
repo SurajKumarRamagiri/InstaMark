@@ -1,27 +1,21 @@
+# users/models.py
 from django.db import models
 from django.contrib.auth.models import User
 
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+class Department(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    
+    def __str__(self):
+        return self.name
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    department = models.CharField(max_length=50, choices=[('hr', 'HR'), ('engineering', 'Engineering'), ('marketing', 'Marketing'), ('sales', 'Sales')])
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, null=True,blank=True)
     role = models.CharField(max_length=50, choices=[('superuser', 'Superuser'), ('staff', 'Staff'), ('regular', 'Regular User')])
 
     def __str__(self):
         return self.user.username
 
-# Signal to create a profile when a user is created
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
-
-# Signal to save profile when a user is saved
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
 
 # # Custom User Model
 # class User(AbstractUser):

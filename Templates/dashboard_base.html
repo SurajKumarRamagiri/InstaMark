@@ -241,16 +241,6 @@
     </div>
     <div class="profile">
         <span class="username">{{ user }}</span>
-        <div class="notifications">
-            <i class="fas fa-bell"></i>
-            <div class="dropdown-content">
-                <ul>
-                    <li>John Doe logged in at 10:00 AM</li>
-                    <li>Jane Smith marked as absent</li>
-                    <li>Michael Brown was late today</li>
-                </ul>
-            </div>
-        </div>
         <div class="dropdown">
             <img alt="Profile picture of the logged-in admin" height="30" src="https://storage.googleapis.com/a1aa/image/u6Ug78MplcYTDJtFbvCliftLFhhAJkaiXmSVo6p036Twq18JA.jpg" width="30"/>
             <div class="dropdown-content">
@@ -262,22 +252,6 @@
 </header>
 <div class="sidebar">
     {% block sidebar %}
-    <!-- <a href="{% url 'admin_dashboard'%}">
-        <i class="fas fa-tachometer-alt"></i>
-        <span>Dashboard</span>
-    </a>
-    <a href="{% url 'user_management' %}">
-        <i class="fas fa-users"></i>
-        <span>User Management</span>
-    </a>
-    <a href="{% url 'attendance' %}">
-        <i class="fas fa-calendar-check"></i>
-        <span>Attendance</span>
-    </a>
-    <a href="{% url 'reports' %}">
-        <i class="fas fa-chart-line"></i>
-        <span>Attendance Reports</span>
-    </a>
     <a href="{% url 'settings' %}">
         <i class="fas fa-cogs"></i>
         <span>Settings</span>
@@ -285,12 +259,12 @@
     <a href="{% url 'logout' %}">
         <i class="fas fa-sign-out-alt"></i>
         <span>Logout</span>
-    </a> -->
+    </a>
     {% endblock %}
 </div>
 <div class="main-content">
     {% block content %}
-    <!-- Main content will be injected here -->
+    <h4>This user's role has yet to be assigned by the Administrator</h4>
     {% endblock %}
 </div>
 <footer class="footer">
@@ -309,7 +283,7 @@
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
+<!-- <script>
     const ctx = document.getElementById('attendanceChart') ? document.getElementById('attendanceChart').getContext('2d') : null;
     if (ctx) {
         const attendanceChart = new Chart(ctx, {
@@ -343,6 +317,6 @@
             }
         });
     }
-</script>
+</script> -->
 </body>
 </html>

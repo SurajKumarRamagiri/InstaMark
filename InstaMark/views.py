@@ -59,42 +59,42 @@ def update_user(request, user_id):
             
     return JsonResponse({"success": False, "message": "Invalid request method"}, status=405)
 
-def add_user(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        department = request.POST.get('department')
-        role = request.POST.get('role')
-        is_active = request.POST.get('is_active') == 'true'
+# def add_user(request):
+#     if request.method == 'POST':
+#         username = request.POST.get('username')
+#         first_name = request.POST.get('first_name')
+#         last_name = request.POST.get('last_name')
+#         email = request.POST.get('email')
+#         password = request.POST.get('password')
+#         department = request.POST.get('department')
+#         role = request.POST.get('role')
+#         is_active = request.POST.get('is_active') == 'true'
 
-        try:
-            user = User.objects.create_user(
-                username=username,  # or generate a unique username
-                email=email,
-                password=password,
-                first_name=first_name,
-                last_name=last_name,
-                is_active=is_active
-            )
+#         try:
+#             user = User.objects.create_user(
+#                 username=username,  # or generate a unique username
+#                 email=email,
+#                 password=password,
+#                 first_name=first_name,
+#                 last_name=last_name,
+#                 is_active=is_active
+#             )
 
-            profile = Profile(user=user, department=department, role=role)
-            profile.save()
+#             profile = Profile(user=user, department=department, role=role)
+#             profile.save()
 
-            if role == 'superuser':
-                user.is_superuser = True
-            elif role == 'staff':
-                user.is_staff = True
-            user.save()
-            messages.success(request, 'User added successfully!')
+#             if role == 'superuser':
+#                 user.is_superuser = True
+#             elif role == 'staff':
+#                 user.is_staff = True
+#             user.save()
+#             messages.success(request, 'User added successfully!')
 
-        except Exception as e:
-            messages.error(request, f'Error adding user: {e}')
+#         except Exception as e:
+#             messages.error(request, f'Error adding user: {e}')
 
-        return redirect(reverse('admin_users'))
-    return render(request, 'add_user.html')
+#         return redirect(reverse('admin_users'))
+#     return render(request, 'add_user.html')
 
 
 @login_required
@@ -105,10 +105,15 @@ def manager_dashboard(request):
 def reports(request):
     return render(request,'reports.html')
 
+def admin_settings(request):
+    return render(request,'admin_settings.html')
+
 def settings(request):
     return render(request,'settings.html')
 
-@user_passes_test(User.is_superuser or User.is_staff)
+def admin_attendance(request):
+    return render(request,'admin_attendance.html')
+
 def attendance(request):
     return render(request,'attendance.html')
 
@@ -139,7 +144,7 @@ def signup(request):
             user=form.save()
             messages.success(request, 'Account created successfully!')
             login(request,user)
-            return redirect('dashboard')
+            return user_login(request)
     else:
         form = UserCreationForm()
     return render(request, 'signup.html', {'form': form})
@@ -150,14 +155,24 @@ def user_dashboard(request):
     user=request.user.username
     return render(request,'user_dashboard.html')
 
+def dashboard(request):
+    return render(request,'dashboard_base.html')
+
 def user_login(request):
     if request.user.is_authenticated:
-        if request.user.is_superuser:
+        user_role = request.user.profile.role
+        if user_role == 'superuser':
+            print(user_role)
             return redirect('admin_dashboard')
-        elif request.user.is_staff:
+        elif user_role == 'staff':
+            print(user_role)
             return redirect('manager_dashboard')
-        else:
-            return redirect('user_dashboard')         # Redirect to the home page if the user is logged in
+        elif user_role == 'regular':
+            print(user_role)
+            return redirect('user_dashboard')  
+        else :
+            print(user_role)
+            return redirect('dashboard')      # Redirect to the home page if the user is logged in
 
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
@@ -167,12 +182,19 @@ def user_login(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                if request.user.groups.filter(name='Administrator').exists():
+                user_role = request.user.profile.role
+                if user_role == 'superuser':
+                    print(user_role)
                     return redirect('admin_dashboard')
-                elif request.user.groups.filter(name='Manager').exists():
+                elif user_role == 'staff':
+                    print(user_role)
                     return redirect('manager_dashboard')
-                else:
-                    return redirect('user_dashboard')  # Redirect to a dashboard page after successful login
+                elif user_role == 'regular':
+                    print(user_role)
+                    return redirect('user_dashboard')  
+                else :
+                    print(user_role)
+                    return redirect('dashboard')
             else:
                 form.add_error(None, 'Invalid username or password')
     else:
