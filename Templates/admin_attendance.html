@@ -44,19 +44,11 @@
    </h2>
    <div class="flex flex-col items-center">
     <div class="w-full md:w-2/3 lg:w-1/2">
-     <select class="w-full p-2 border border-gray-300 rounded-lg mb-4" id="department">
-      <option value="">
-       Select Department
-      </option>
-      <option value="department1">
-       Department 1
-      </option>
-      <option value="department2">
-       Department 2
-      </option>
-      <option value="department3">
-       Department 3
-      </option>
+     <select class="w-full p-2 border border-gray-300 rounded-lg mb-4" id="department" name="department" required>
+        <option value="">Select Department</option> 
+        {% for department in departments %}
+        <option value="{{ department.id }}">{{ department.name }}</option>
+        {% endfor %}
      </select>
      <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600" id="view-attendance">
       View Attendance
@@ -326,7 +318,9 @@
           doc.autoTable({ html: '#attendance-table' });
           doc.save('Attendance.pdf');
       });
+
 </script>
+
 
 {% endblock %}
 

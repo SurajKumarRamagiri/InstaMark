@@ -9,8 +9,8 @@ class Department(models.Model):
         return self.name
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    department = models.ForeignKey(Department, on_delete=models.CASCADE, null=True,blank=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE,related_name='profile')
+    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True,blank=True)
     role = models.CharField(max_length=50, choices=[('superuser', 'Superuser'), ('staff', 'Staff'), ('regular', 'Regular User')])
 
     def __str__(self):

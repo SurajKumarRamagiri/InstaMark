@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm,AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
 from django.http import HttpResponse,JsonResponse
@@ -9,7 +9,8 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 import json
-from users.models import Profile
+from users.models import Profile,Department
+
 @csrf_exempt
 def delete_user(request, user_id):
     if request.method == "DELETE":
@@ -34,12 +35,18 @@ def update_user(request, user_id):
             # Update fields (check for empty or None values)
             user.username = data.get("username", user.username)
             if "name" in data:
-                user.first_name, user.last_name = data["name"].split(" ", 1)
+                name_parts = data["name"].split(" ", 1)
+                user.first_name = name_parts[0]
+                user.last_name = name_parts[1] if len(name_parts) > 1 else ""
+
             user.email = data.get("email", user.email)
 
             # Update custom fields (like department, role)
             if "department" in data:
-                user.profile.department = data.get("department", user.profile.department)
+                # user.profile.department = data.get("department", user.profile.department)
+                department_name = data.get("department")
+                department = get_object_or_404(Department, name=department_name)  # Get the department instance
+                user.profile.department = department
             if "role" in data:
                 user.profile.role = data.get("role", user.profile.role)
             if "status" in data:
@@ -59,44 +66,6 @@ def update_user(request, user_id):
             
     return JsonResponse({"success": False, "message": "Invalid request method"}, status=405)
 
-# def add_user(request):
-#     if request.method == 'POST':
-#         username = request.POST.get('username')
-#         first_name = request.POST.get('first_name')
-#         last_name = request.POST.get('last_name')
-#         email = request.POST.get('email')
-#         password = request.POST.get('password')
-#         department = request.POST.get('department')
-#         role = request.POST.get('role')
-#         is_active = request.POST.get('is_active') == 'true'
-
-#         try:
-#             user = User.objects.create_user(
-#                 username=username,  # or generate a unique username
-#                 email=email,
-#                 password=password,
-#                 first_name=first_name,
-#                 last_name=last_name,
-#                 is_active=is_active
-#             )
-
-#             profile = Profile(user=user, department=department, role=role)
-#             profile.save()
-
-#             if role == 'superuser':
-#                 user.is_superuser = True
-#             elif role == 'staff':
-#                 user.is_staff = True
-#             user.save()
-#             messages.success(request, 'User added successfully!')
-
-#         except Exception as e:
-#             messages.error(request, f'Error adding user: {e}')
-
-#         return redirect(reverse('admin_users'))
-#     return render(request, 'add_user.html')
-
-
 @login_required
 def manager_dashboard(request):
     user=request.user.username
@@ -106,27 +75,34 @@ def reports(request):
     return render(request,'reports.html')
 
 def admin_settings(request):
-    return render(request,'admin_settings.html')
+    departments=Department.objects.all()
+    return render(request,'admin_settings.html',{'departments': departments})
 
 def settings(request):
     return render(request,'settings.html')
 
 def admin_attendance(request):
-    return render(request,'admin_attendance.html')
+    departments=Department.objects.all()
+    return render(request,'admin_attendance.html',{'departments': departments})
 
 def attendance(request):
     return render(request,'attendance.html')
 
 def admin_users(request):
     users = User.objects.all()
-    return render(request,'admin_users.html',{'users': users})
+    departments=Department.objects.all()
+    context = {
+        'users': users,
+        'departments': departments
+    }
+    return render(request,'admin_users.html',context)
 
 def DataCapture():
     return render(request,'DataCapture.html')
 
 # Function to check if user is admin
 def is_admin(user):
-    return user.is_superuser
+    return user.profile.role=='superuser'
 
 # Dashboard view
 @user_passes_test(is_admin)
@@ -158,22 +134,36 @@ def user_dashboard(request):
 def dashboard(request):
     return render(request,'dashboard_base.html')
 
+from django.shortcuts import redirect
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import AuthenticationForm
+
 def user_login(request):
+    # Check if user is already authenticated
     if request.user.is_authenticated:
-        user_role = request.user.profile.role
+        # Get the user's role from the profile
+        try:
+            user_role = request.user.profile.role
+        except Profile.DoesNotExist:
+            # If the profile does not exist, redirect to the home page
+            print("profile does not exist")
+            return redirect('dashboard')
+
+        # Redirect based on the user's role
         if user_role == 'superuser':
-            print(user_role)
+            # print("superuser")
             return redirect('admin_dashboard')
         elif user_role == 'staff':
-            print(user_role)
+            # print("staff")
             return redirect('manager_dashboard')
         elif user_role == 'regular':
-            print(user_role)
-            return redirect('user_dashboard')  
-        else :
-            print(user_role)
-            return redirect('dashboard')      # Redirect to the home page if the user is logged in
+            # print("regular")
+            return redirect('user_dashboard')
+        else:
+            # print("unknown role")
+            return redirect('dashboard')  # Default redirect if role is unknown
 
+    # Handle login form submission
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
@@ -181,25 +171,32 @@ def user_login(request):
             password = form.cleaned_data['password']
             user = authenticate(request, username=username, password=password)
             if user is not None:
-                login(request, user)
-                user_role = request.user.profile.role
+                login(request, user)  # Log the user in
+                # Get the role of the user after login
+                try:
+                    user_role = user.profile.role
+                except Profile.DoesNotExist:
+                    # If profile does not exist, redirect to the default dashboard
+                    return redirect('dashboard')
+
+                # Redirect based on the user's role
                 if user_role == 'superuser':
-                    print(user_role)
                     return redirect('admin_dashboard')
                 elif user_role == 'staff':
-                    print(user_role)
                     return redirect('manager_dashboard')
                 elif user_role == 'regular':
-                    print(user_role)
-                    return redirect('user_dashboard')  
-                else :
-                    print(user_role)
-                    return redirect('dashboard')
+                    return redirect('user_dashboard')
+                else:
+                    return redirect('dashboard')  # Default if role is unknown
+
             else:
+                # If authentication failed, add an error to the form
                 form.add_error(None, 'Invalid username or password')
     else:
+        # If the request method is not POST, simply show the login page
         form = AuthenticationForm()
-    return render(request, 'login.html', {'form': form})
+        return render(request, 'login.html', {'form': form})
+
 
 def user_logout(request):
     logout(request)
