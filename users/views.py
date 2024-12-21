@@ -1,5 +1,8 @@
 # users/views.py
-
+from PIL import Image
+from io import BytesIO
+from django.views.decorators.csrf import csrf_exempt
+import base64,face_recognition
 from django.db import IntegrityError
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Department, Profile
@@ -8,6 +11,42 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, Http404
 from django.contrib import messages
 
+@csrf_exempt
+def register_face(request):
+    if request.method == 'POST':
+        try:
+            # Parse the image data from the request
+            data = request.json()
+            image_data = data.get('image')
+
+            # Decode the Base64 image data
+            format, imgstr = image_data.split(';base64,')
+            image_bytes = base64.b64decode(imgstr)
+            image = Image.open(BytesIO(image_bytes))
+
+            # Convert the image to a format compatible with face_recognition
+            image_np = np.array(image)
+
+            # Extract face embeddings
+            face_locations = face_recognition.face_locations(image_np)
+            face_encodings = face_recognition.face_encodings(image_np, face_locations)
+
+            if len(face_encodings) != 1:
+                return JsonResponse({'message': 'No face or multiple faces detected.'}, status=400)
+
+            face_embedding = face_encodings[0].tolist()  # Convert to a list for JSON serialization
+
+            # Save the embedding to the user's profile
+            user_id = request.user.id
+            user_profile = UserProfile.objects.get(user_id=user_id)
+            user_profile.face_embedding = face_embedding
+            user_profile.save()
+
+            return JsonResponse({'message': 'Face registered successfully!'})
+
+        except Exception as e:
+            return JsonResponse({'message': str(e)}, status=500)
+    return JsonResponse({'message': 'Invalid request method.'}, status=405)
 
 
 def get_departments(request):

@@ -165,6 +165,160 @@
         .add-user-card .submit-btn {
             margin-top: 15px;
         }
+        /* Horizontal Camera Modal Styles */
+        /* Camera Modal Styles */
+        #cameraModal {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between; /* Ensures spacing between webcam and buttons */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            width: 600px; /* Increase width for better visibility */
+            height: 500px; /* Adjust height to accommodate camera and buttons */
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        #cameraFeed {
+            width: 100%; /* Make camera feed responsive */
+            height: 70%; /* Adjust height proportionally */
+            border-radius: 5px;
+            background: #000; /* Placeholder for when camera is loading */
+            object-fit: cover; /* Ensure proper scaling */
+        }
+
+        .camera-buttons {
+            display: flex;
+            justify-content: space-between; /* Space out buttons evenly */
+            width: 100%;
+            margin-top: 20px;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .camera-buttons button {
+            flex: 1;
+            margin: 0 10px;
+            padding: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .camera-buttons .capture {
+            background-color: #28a745; /* Green for capture */
+        }
+
+        .camera-buttons .capture:hover {
+            background-color: #218838;
+        }
+
+        .camera-buttons .cancel {
+            background-color: #dc3545; /* Red for cancel */
+        }
+
+        .camera-buttons .cancel:hover {
+            background-color: #c82333;
+        }
+
+        .camera-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            width: 800px;
+            height: 500px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+        }
+
+        .modal-header .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .video-feed {
+            width: 90%;
+            height: 90%;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            background-color: black;
+        }
+
+        .modal-footer {
+            background: #f8f9fa;
+            display: flex;
+            justify-content: space-evenly;
+            padding: 15px;
+        }
+
+        .capture-btn, .cancel-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .capture-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .capture-btn:hover {
+            background-color: #218838;
+        }
+
+        .cancel-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .cancel-btn:hover {
+            background-color: #c82333;
+        }
 
         /* Overlay Styles */
         .modal-overlay {
@@ -177,6 +331,17 @@
             background: rgba(0, 0, 0, 0.5);
             z-index: 999;
         }
+        @media (max-width: 768px) {
+            #cameraModal {
+                width: 90%;
+                height: auto;
+            }
+
+            #cameraFeed {
+                height: auto; /* Adjust height for smaller screens */
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -232,7 +397,7 @@
                     <td>
                         <button class="edit" onclick="editRow(this)">Edit</button>
                         <button class="delete" onclick="deleteUser('{{ user.id }}')">Delete</button>
-                        <button class="register-face">Register Face</button>
+                        <button class="register-face" onclick="openCameraModal('{{ user.id }}')">Register Face</button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -287,10 +452,116 @@
 
     <div class="modal-overlay" onclick="closeAddUserModal()"></div>
 
+    <!-- Camera Modal -->
+    <div id="cameraModal" class="camera-modal">
+        <div class="modal-header">
+            <h2>Register Face</h2>
+            <button class="close-btn" onclick="closeCameraModal()">X</button>
+        </div>
+        <div class="modal-body">
+            <video id="cameraFeed" autoplay playsinline class="video-feed"></video>
+        </div>
+        <div class="modal-footer">
+            <button class="capture-btn" onclick="captureFace()">Capture</button>
+            <button class="cancel-btn" onclick="closeCameraModal()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div id="cameraModalOverlay" class="modal-overlay"></div>
+
+
+
 
     <script>
-        const addUserModal = document.getElementById("addUserModal");
+        document.addEventListener("DOMContentLoaded", () => {
+            // Ensure overlay and modal are hidden when the page loads
+            const modalOverlay = document.getElementById("cameraModalOverlay");
+            const cameraModal = document.getElementById("cameraModal");
+
+            modalOverlay.style.display = "none";
+            cameraModal.style.display = "none";
+        });
+
+        const cameraModal = document.getElementById("cameraModal");
         const modalOverlay = document.querySelector(".modal-overlay");
+        const cameraFeed = document.getElementById("cameraFeed");
+        let videoStream;
+
+        function openCameraModal(userId) {
+            // Show the modal and overlay
+            const cameraModal = document.getElementById("cameraModal");
+            const modalOverlay = document.getElementById("cameraModalOverlay");
+            cameraModal.style.display = "flex";
+            modalOverlay.style.display = "block";
+
+            // Access the camera
+            navigator.mediaDevices
+                .getUserMedia({ video: true })
+                .then(stream => {
+                    const cameraFeed = document.getElementById("cameraFeed");
+                    // videoStream = stream;
+                    cameraFeed.srcObject = stream;
+                })
+                .catch(err => {
+                    console.error("Error accessing camera: ", err);
+                    alert("Could not access the camera.");
+                    closeCameraModal();
+                });
+        }
+
+        function closeCameraModal() {
+            cameraModal.style.display = "none";
+            modalOverlay.style.display = "none";
+
+            // Stop the camera stream
+            if (videoStream) {
+                const tracks = videoStream.getTracks();
+                tracks.forEach(track => track.stop());
+            }
+        }
+
+        function captureFace() {
+            // Create a canvas to capture the video frame
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+            canvas.width = cameraFeed.videoWidth;
+            canvas.height = cameraFeed.videoHeight;
+
+            context.drawImage(cameraFeed, 0, 0, canvas.width, canvas.height);
+
+            // Convert the image to Base64
+            const imageData = canvas.toDataURL("image/jpeg");
+
+            // Send the image data to the server
+            fetch(`/register_face/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCSRFToken(),
+                },
+                body: JSON.stringify({ image: imageData }),
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert("Face registered successfully!");
+                    } else {
+                        response.json().then(data => {
+                            alert("Error registering face: " + data.message);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error("Error in captureFace:", error.message);
+                    alert("An error occurred: " + error.message);
+                })
+                .finally(() => {
+                    closeCameraModal();
+                });
+        }
+
+
+        const addUserModal = document.getElementById("addUserModal");
     
         function openAddUserModal() {
             addUserModal.style.display = "block";
