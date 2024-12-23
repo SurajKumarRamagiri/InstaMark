@@ -1,8 +1,9 @@
 # users/views.py
+import numpy as np
 from PIL import Image
 from io import BytesIO
 from django.views.decorators.csrf import csrf_exempt
-import base64,face_recognition
+import json, base64, cv2, dlib
 from django.db import IntegrityError
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Department, Profile
@@ -11,40 +12,106 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, Http404
 from django.contrib import messages
 
+# Load dlib's face detection and embedding models
+detector = dlib.get_frontal_face_detector()
+face_rec_model = dlib.face_recognition_model_v1('utilities/dlib_face_recognition_resnet_model_v1.dat')
+shape_predictor = dlib.shape_predictor('utilities/shape_predictor_68_face_landmarks.dat')
+
 @csrf_exempt
 def register_face(request):
     if request.method == 'POST':
         try:
             # Parse the image data from the request
-            data = request.json()
+            data = json.loads(request.body)
             image_data = data.get('image')
+            user_id = data.get('userID')
 
+            if not image_data:
+                return JsonResponse({'message': 'Image data not provided.'}, status=400)
+            
             # Decode the Base64 image data
             format, imgstr = image_data.split(';base64,')
             image_bytes = base64.b64decode(imgstr)
             image = Image.open(BytesIO(image_bytes))
 
+            # Retrieve the uploaded file
+            # user_id = request.FILES.get('userID')
+            # print(user_id)
+            # uploaded_file = request.FILES.get('image')
+            # if not uploaded_file:
+            #     return JsonResponse({'message': 'No image file provided.'}, status=400)
+
+            # # Load the image using PIL
+            # image = Image.open(uploaded_file)
+            # print(f"actual image mode: {image.mode}, size: {image.size}")
+
+            # Convert the image to grayscale (8-bit)
+            image = image.convert('L')  # 'L' mode is for 8-bit grayscale
+            # image = image.convert('RGB')  # Ensure the image is in RGB mode
+
+            print(f"Converted image mode: {image.mode}, size: {image.size}")
+
             # Convert the image to a format compatible with face_recognition
             image_np = np.array(image)
+            print(f"Image NumPy array shape: {image_np.shape}, dtype: {image_np.dtype}")
 
-            # Extract face embeddings
-            face_locations = face_recognition.face_locations(image_np)
-            face_encodings = face_recognition.face_encodings(image_np, face_locations)
+            # Convert the grayscale image to 3-channel for dlib compatibility
+            image_bgr = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR)
 
-            if len(face_encodings) != 1:
+            # Resize the image to a standard size (optional, but might help)
+            image_bgr = cv2.resize(image_bgr, (640, 480))
+
+            # Confirm the dtype is uint8
+            image_bgr = image_bgr.astype(np.uint8)
+            print(f"bgr NumPy array shape: {image_bgr.shape}, dtype: {image_bgr.dtype}, Image type: {type(image_bgr)}")
+            print(f"Pixel value range: {image_bgr.min()} to {image_bgr.max()}")
+            # print(image_bgr)
+
+
+            # Detect faces using dlib
+            print("Detecting faces...")
+            faces = detector(image_bgr, 1)
+            print(f"Number of faces detected: {len(faces)}")
+            if len(faces) != 1:
                 return JsonResponse({'message': 'No face or multiple faces detected.'}, status=400)
 
-            face_embedding = face_encodings[0].tolist()  # Convert to a list for JSON serialization
+            # Extract the face landmarks and embeddings
+            print("Detecting landmarks...")
+            shape = shape_predictor(image_bgr, faces[0])
+            print(f"Landmarks detected: {shape.parts()}")
+
+            print("Computing face descriptor...")
+            face_embedding = np.array(face_rec_model.compute_face_descriptor(image_bgr, shape))
+            print(f"Face embedding: {face_embedding}")
+
+            # # Extract face embeddings
+            # face_locations = face_recognition.face_locations(image_np)
+            # if not face_locations:
+            #     return JsonResponse({'message': 'No faces detected in the image.'}, status=400)
+
+            # print("face loc generated:", face_locations)
+            # face_encodings = face_recognition.face_encodings(image_np, face_locations)
+            # print("face encodings generated")
+
+            # if len(face_encodings) != 1:
+            #     return JsonResponse({'message': 'No face or multiple faces detected.'}, status=400)
+
+            # face_embedding = face_encodings[0].tolist()  # Convert to a list for JSON serialization
 
             # Save the embedding to the user's profile
-            user_id = request.user.id
-            user_profile = UserProfile.objects.get(user_id=user_id)
-            user_profile.face_embedding = face_embedding
+            print(user_id)
+            try:
+                user_profile = Profile.objects.get(user_id=user_id)
+            except Profile.DoesNotExist:
+                return JsonResponse({'message': 'Profile not found for the current user.'}, status=404)
+
+            user_profile.face_embedding = face_embedding.tolist()
             user_profile.save()
 
             return JsonResponse({'message': 'Face registered successfully!'})
 
         except Exception as e:
+            print(f"Error details: {str(e)}")
             return JsonResponse({'message': str(e)}, status=500)
     return JsonResponse({'message': 'Invalid request method.'}, status=405)
 
