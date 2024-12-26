@@ -68,8 +68,15 @@ def update_user(request, user_id):
 
 @login_required
 def manager_dashboard(request):
-    user=request.user.username
-    return render(request, 'manager_dashboard.html')
+    user_count = User.objects.count()
+    department_count = Department.objects.count()
+    
+    # Pass the data to the template
+    return render(request, 'manager_dashboard.html', {
+        'active_page': 'dashboard',
+        'user_count': user_count,
+        'department_count': department_count,
+    })
 
 def reports(request):
     return render(request,'reports.html')
@@ -107,9 +114,16 @@ def is_admin(user):
 # Dashboard view
 @user_passes_test(is_admin)
 def admin_dashboard(request):
-    user=request.user.username
-    return render(request, 'admin_dashboard.html',{'active_page': 'dashboard'})
-
+    user_count = User.objects.count()
+    department_count = Department.objects.count()
+    manager_count = User.objects.filter(profile__role='staff').count()  # Define manager count
+    
+    return render(request, 'admin_dashboard.html', {
+        'active_page': 'dashboard',
+        'user_count': user_count,
+        'department_count': department_count,
+        'manager_count': manager_count,
+    })
 def home(request):
     return render(request,'home.html')
 
