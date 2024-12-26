@@ -20,8 +20,12 @@ from django.urls import path,include
 from . import views
 from django.contrib.auth.views import LogoutView
 from users import views as user_views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
+    path('face_recognition/', include('face_recognition.urls')),
+    path('attendance/', include('attendance.urls')),
     path('users/', include('users.urls')),
     path('delete-user/<int:user_id>/', views.delete_user, name='delete_user'),
     path('update-user/<int:user_id>/', views.update_user, name='update_user'),

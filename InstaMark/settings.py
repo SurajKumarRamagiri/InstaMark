@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
+
 
 LOGOUT_REDIRECT_URL = 'login'  # Redirect to the login page after logging out
 
@@ -33,6 +35,8 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'face_recognition',
+    'attendance',
     'users',
     'rest_framework',
     'widget_tweaks',
@@ -118,25 +122,28 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Kolkata"
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = "/static/"
+STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-STATICFILES_DIRS = [BASE_DIR / "static"]    # Adjust according to your folder structure
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]  # For development
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')    # For production
 
 LOGIN_URL = '/login/'  # The URL for your custom login page
 
-
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",  # Adjust as needed
+]

@@ -511,7 +511,7 @@
 
                 statusElement.innerText = "Status: Sending image to the server...";
                 // Send the image data to the server
-                fetch(`/users/register_face/`, {
+                fetch(`/face_recognition/register_face/`, {
                     method: "POST",
                     headers: {
                          "Content-Type": "application/json",
