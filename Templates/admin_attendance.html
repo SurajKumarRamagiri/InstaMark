@@ -63,8 +63,8 @@
                     <thead>
                         <tr>
                             <th class="py-2 px-4 border-b border-gray-200 bg-gray-100">Name</th>
-                            <th class="py-2 px-4 border-b border-gray-200 bg-gray-100">Date</th>
                             <th class="py-2 px-4 border-b border-gray-200 bg-gray-100">Status</th>
+                            <th class="py-2 px-4 border-b border-gray-200 bg-gray-100">Date</th>
                             <th class="py-2 px-4 border-b border-gray-200 bg-gray-100">Time</th>
                         </tr>
                     </thead>
@@ -163,9 +163,29 @@
                         const newRow = document.createElement("tr");
                         newRow.innerHTML = `
                             <td class="border-b p-2">${record.fullname}</td>
-                            <td class="border-b p-2">${new Date(record.date).toLocaleDateString()}</td>
                             <td class="border-b p-2">${record.status}</td>
-                            <td class="border-b p-2">${new Date(record.time).toLocaleTimeString()}</td>
+                            <td class="border-b p-2">${new Date(record.date).toLocaleDateString()}</td>
+                            <td class="border-b p-2">
+                                ${(() => {
+                                    const timeString = record.time; // e.g., "11:39:36.469"
+
+                                    try {
+                                    // Parse time string into parts
+                                    const [hours, minutes, seconds] = timeString.split(':');
+                                    const [secs, millis] = seconds.split('.');
+
+                                    // Create a Date object using today's date and the extracted time
+                                    const now = new Date(record.date);
+                                    now.setHours(hours, minutes, secs, millis);
+
+                                    // Format the time
+                                    return now.toLocaleTimeString(); // Returns localized time, e.g., "11:39:36 AM"
+                                    } catch (error) {
+                                    return 'Invalid Time'; // Fallback for invalid time strings
+                                    }
+                                })()}
+                                </td>
+
                         `;
                         attendanceTableBody.appendChild(newRow);
                     });
@@ -241,10 +261,10 @@
             }
         })
         .then(data => {
-            const { recognized_name, full_name } = data;
+            const { message } = data;
 
-            if (recognized_name && full_name) {
-                statusText.innerText = `Face recognised successfully! User: ${full_name} (${recognized_name})`;
+            if (message) {
+                statusText.innerText = `${message}`;
                 statusText.style.color = "green";
             } else {
                 statusText.innerText = "Face not recognised.";

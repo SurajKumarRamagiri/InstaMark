@@ -11,8 +11,11 @@ from rest_framework import status
 from users.models import Department, Profile
 from attendance.models import Attendance
 from django.utils import timezone
-from datetime import timedelta
+from datetime import datetime, timedelta
 import requests
+from django.db.models import Q
+from face_recognition.config import ATTENDANCE_TIME_WINDOW, RECOGNITION_THRESHOLD
+
 
 # Create your views here.
 # Load dlib's face detection and embedding models
@@ -20,8 +23,7 @@ detector = dlib.get_frontal_face_detector()
 face_rec_model = dlib.face_recognition_model_v1('utilities/dlib_face_recognition_resnet_model_v1.dat')
 shape_predictor = dlib.shape_predictor('utilities/shape_predictor_68_face_landmarks.dat')
 
-RECOGNITION_THRESHOLD = 0.5
-ATTENDANCE_TIME_WINDOW = 40  # in minutes
+ # in minutes
 
 @csrf_exempt
 def recognise_face(request):
@@ -66,7 +68,7 @@ def recognise_face(request):
             return JsonResponse({'message': 'No registered profiles in the department.'}, status=404)
 
         # Recognize face by comparing embeddings
-        matched_user, min_distance = None, 0.5  # Threshold for recognition
+        matched_user, min_distance = None, RECOGNITION_THRESHOLD  # Threshold for recognition
         for profile in profiles:
             try:
                 known_embedding = np.array(profile.face_embedding, dtype=np.float64)
@@ -84,27 +86,34 @@ def recognise_face(request):
         matched_full_name = matched_user.user.get_full_name()
         print(f"Matched user: {matched_username}, distance: {min_distance}")
 
+        try:
+            today = timezone.now().date()
+            last_attendance = check_last_attendance(matched_username, today)
 
-        # Check attendance for today
-        today = timezone.now().date()
-        last_attendance = Attendance.objects.filter(
-            user_profile=matched_user, date=today
-        ).order_by('-time').first()
+            # Additional debugging
+            if last_attendance:
+                # print(f"Last attendance record: {last_attendance}")
+                time_difference = get_time_difference(last_attendance)
+                # print(f"Time difference: {time_difference}")
+                if time_difference < timedelta(minutes=ATTENDANCE_TIME_WINDOW):
+                    # print('before:',last_attendance.status)
+                    if last_attendance.status == 'Absent':
+                        # Update attendance if previously marked absent
+                        last_attendance.status = 'Present'
+                        # print('after:',last_attendance.status)
+                        last_attendance.save()
+                        return JsonResponse({'message': f'Attendance updated to Present for {matched_username}.'}, status=200)
+                    return JsonResponse({'message': 'Attendance already marked for this user.'}, status=200)
+            else:
+                print("No attendance record found")
 
-        if last_attendance:
-            time_difference = timezone.now() - last_attendance.time
-            if time_difference < timedelta(minutes=40):
-                if last_attendance.status == 'Absent':
-                    # Update attendance if previously marked absent
-                    last_attendance.status = 'Present'
-                    last_attendance.save()
-                    return JsonResponse({'message': f'Attendance updated to Present for {matched_username}.'}, status=200)
-                return JsonResponse({'message': 'Attendance already marked for this user.'}, status=400)
+        except Exception as e:
+            print(f"Unexpected error: {str(e)}")
 
         # Mark attendance
         department = Department.objects.get(id=department_id)
         print(f"Marking attendance for {matched_username} in {department.name}")
-        Attendance.objects.update_or_create(
+        Attendance.objects.create(
             user_profile=matched_user,
             department=department,
             department_name=department.name,
@@ -113,13 +122,46 @@ def recognise_face(request):
             status='Present',
         )
         print(f"Attendance marked for {matched_username} in {department.name}")
-        return JsonResponse({'recognized_name': matched_username, 'full_name': matched_full_name}, status=200)
+        return JsonResponse({'message': f'Face recognized successfully for {matched_full_name} ({matched_username}) \n marked as Present'}, status=200)
+        # return JsonResponse({'recognized_name': matched_username, 'full_name': matched_full_name}, status=200)
 
     except Exception as e:
         return JsonResponse({'error': f"An error occurred: {str(e)}"}, status=500)
 
+def check_last_attendance(matched_username, today):
+    try:
+        # Expanded query to handle potential edge cases
+        last_attendance = Attendance.objects.filter(
+            Q(user_profile__user__username=matched_username) & 
+            Q(date=today)
+        ).order_by('-time').first()
 
-  
+        # Detailed logging and error handling
+        if last_attendance:
+            print(f"Last Attendance ID Found: {last_attendance.id}")
+            return last_attendance
+
+        else:
+            print("No previous attendance record found for today.")
+            return None
+
+    except Exception as e:
+        print(f"Error checking last attendance: {str(e)}")
+        return None
+
+
+# Correct way to calculate time difference
+def get_time_difference(last_attendance):
+    # Get current IST time
+    current_time = timezone.now()
+    
+    # Ensure both times are timezone aware and in the same timezone
+    last_attendance_time = datetime.combine(last_attendance.date, last_attendance.time)
+    
+    # Calculate time difference
+    time_difference = current_time - last_attendance_time
+    
+    return time_difference  
 
 
 @csrf_exempt
@@ -229,3 +271,4 @@ def register_face(request):
 #             continue
 
 #     return JsonResponse({"department_id": department_id, "embeddings": embeddings})
+
