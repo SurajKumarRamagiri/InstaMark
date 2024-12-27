@@ -275,9 +275,10 @@ def user_login(request):
                 else:
                     return redirect('dashboard')  # Default if role is unknown
 
-            else:
+        
                 # If authentication failed, add an error to the form
-                form.add_error(None, 'Invalid username or password')
+        messages.error(request, 'Invalid username or password')
+        return redirect('login')
     else:
         # If the request method is not POST, simply show the login page
         form = AuthenticationForm()

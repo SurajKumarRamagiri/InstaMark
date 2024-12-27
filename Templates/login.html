@@ -35,9 +35,6 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        .card-body {
-            padding: 30px;
-        }
         .form-label {
             font-weight: 600;
         }
@@ -58,11 +55,11 @@
         }
         .password-eye-icon {
             position: absolute;
-            right: 10px;  /* Keeps the icon towards the right */
-            top: 73%;  /* Adjusted this value to lower the icon inside the input */
-            transform: translateY(-50%);  /* Centers the icon vertically */
-            font-size: 1.5em;  /* Makes the icon bigger */
-            color: #007bff;  /* Bootstrap primary color for better visibility */
+            right: 10px;  
+            top: 73%;  
+            transform: translateY(-50%);  
+            font-size: 1.5em;  
+            color: #007bff;  
             cursor: pointer;
         }
     </style>
@@ -76,7 +73,7 @@
     <div class="container">
         <div class="login-container">
             <h3 class="text-center mb-4">Login</h3>
-            <form method="POST">
+            <form method="POST" id="login-form">
                 {% csrf_token %}
                 <div class="mb-3">
                     <label for="id_username" class="form-label">Username</label>
@@ -85,7 +82,6 @@
                 <div class="mb-3 password-field">
                     <label for="id_password" class="form-label">Password</label>
                     <input type="password" name="password" class="form-control" id="id_password" required>
-                    <!-- Eye icon for password visibility -->
                     <i class="bi bi-eye password-eye-icon" id="eye-icon"></i>
                 </div>
                 <button type="submit" class="btn btn-primary btn-login">Login</button>
@@ -95,6 +91,8 @@
                 </div>
             </form>
 
+            <div id="error-messages" class="alert alert-danger" style="display: none;"></div>
+
             {% if form.errors %}
                 <div class="alert alert-danger">
                     <ul>
@@ -102,6 +100,9 @@
                             {% for error in field.errors %}
                                 <li>{{ error }}</li>
                             {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -125,6 +126,38 @@
                 passwordField.type = 'password'; // Change back to password to hide it
                 icon.classList.remove('bi-eye-slash'); // Change to closed eye
                 icon.classList.add('bi-eye'); // Show closed eye
+            }
+        });
+
+        // Client-side validation
+        document.getElementById('login-form').addEventListener('submit', function(event) {
+            // Clear previous error messages
+            const errorContainer = document.getElementById('error-messages');
+            errorContainer.innerHTML = '';
+            errorContainer.style.display = 'none';
+
+            // Get form values
+            const username = document.getElementById('id_username').value.trim();
+            const password = document.getElementById('id_password').value;
+
+            // Validate fields
+            let errors = [];
+            if (!username) {
+                errors.push("Username is required.");
+            }
+            if (!password) {
+                errors.push("Password is required.");
+            }
+
+            // If there are errors, display them
+            if (errors.length > 0) {
+                errors.forEach(error => {
+                    const errorItem = document.createElement('p');
+                    errorItem.textContent = error;
+                    errorContainer.appendChild(errorItem);
+                });
+                errorContainer.style.display = 'block'; // Show error messages
+                event.preventDefault(); // Prevent form submission
             }
         });
     </script>
