@@ -112,7 +112,7 @@ def recognise_face(request):
                     last_attendance.status = 'Half Present'
                     last_attendance.check_out_time = timezone.now()
             elif time_difference >= ATTENDANCE_TIME_WINDOW:
-                if last_attendance.status == ("Half Present" or "Present"):
+                if last_attendance.status == "Half Present" or last_attendance.status == "Present":
                     return JsonResponse({'message': f'Attendance already marked for \n{matched_username} ({matched_full_name}).'}, status=200)
                 else:
                     last_attendance.status = 'Present'
