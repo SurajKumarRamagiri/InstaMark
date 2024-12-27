@@ -11,40 +11,14 @@ from django.views.decorators.csrf import csrf_exempt
 import json,csv
 from users.models import Profile,Department
 from attendance.models import Attendance
-from django.db.models import F, Value, Count
+from django.db.models import Count, Q, F, Case, When, FloatField, Value
 from django.db.models.functions import Concat
 from django.shortcuts import render
 from django.utils.timezone import now,localdate,timedelta
 from attendance.models import Attendance
 
-def user_dashboard(request):
-    user = request.user  # get logged-in user
-    attendance_data = Attendance.objects.filter(username=user)
-    total_days = attendance_data.count()
-    
-    # Count attendance types
-    present_count = attendance_data.filter(status='Present').count()
-    absent_count = attendance_data.filter(status='Absent').count()
-    late_count = attendance_data.filter(status='Late').count()
-
-    # Prepare attendance summary
-    attendance_summary = {
-        'total_days': total_days,
-        'present_count': present_count,
-        'absent_count': absent_count,
-        'late_count': late_count,
-        'overall_percentage': (present_count / total_days) * 100 if total_days > 0 else 0,
-    }
-
-    context = {
-        'user': user,
-        'attendance_data': attendance_data,
-        'attendance_summary': attendance_summary
-    }
-    return render(request, 'user_dashboard.html', context)
-
-def export_csv(request):
-    # Query all attendance data
+def admin_reports(request):
+    # Query all attendance records
     attendance_queryset = Attendance.objects.annotate(
         full_name=Concat(F('user_profile__user__first_name'), Value(' '), F('user_profile__user__last_name'))
     ).values(
@@ -53,18 +27,22 @@ def export_csv(request):
         'department__name',
         'status',
         'user_profile__user__id',
+    ).annotate(
+        total_days=Count('date', distinct=True),
+        present_days=Count(Case(When(status='Present', then=1))),
+        half_present_days=Count(Case(When(status='Half Present', then=1))),
+        absent_days=Count(Case(When(status='Absent', then=1))),
+    ).annotate(
+        attendance_percentage=Case(
+            When(total_days__gt=0, then=((F('present_days') + F('half_present_days') * 0.5) * 100.0 / F('total_days'))),
+            default=0,
+            output_field=FloatField(),
+        ),
     )
     
-    # Prepare the response as a CSV file
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="attendance_report.csv"'
-    
-    writer = csv.writer(response)
-    # Write the header row
-    writer.writerow(['Username', 'Name', 'Department', 'Total Days', 'Present Days', 'Absent Days', 'Percentage'])
-
-    # Populate the CSV file with data
+    # Prepare a dictionary to aggregate attendance data for each user
     user_attendance = {}
+
     for record in attendance_queryset:
         user_id = record['user_profile__user__id']
         if user_id not in user_attendance:
@@ -72,28 +50,52 @@ def export_csv(request):
                 'username': record['user_profile__user__username'],
                 'name': record['full_name'],
                 'department': record['department__name'],
-                'total_days': 0,
-                'present_days': 0,
-                'absent_days': 0,
+                'total_days': record['total_days'],
+                'present_days': record['present_days'],
+                'half_present_days': record['half_present_days'],
+                'absent_days': record['absent_days'],
+                'attendance_percentage': round(record['attendance_percentage'], 2),
             }
-        
-        # Increment totals and attendance status counts
-        user_attendance[user_id]['total_days'] += 1
-        if record['status'] == 'Present':
-            user_attendance[user_id]['present_days'] += 1
-        else:
-            user_attendance[user_id]['absent_days'] += 1
+
+    # Convert to a list for template rendering
+    attendance_data = list(user_attendance.values())
+    departments=Department.objects.all()
+
+    # Context for rendering the template
+    context = {
+        'attendance_data': attendance_data,
+        'departments': departments
+    }
+    return render(request, 'admin_reports.html', context)
+
+def user_dashboard(request):
+    user = request.user  # get logged-in user
+    attendance_data = Attendance.objects.filter(username=user)
+    total_days = attendance_data.count()
     
-    # Write the data rows
-    for user_data in user_attendance.values():
-        user_data['attendance_percentage'] = round(
-            (user_data['present_days'] / user_data['total_days']) * 100, 2
-        ) if user_data['total_days'] > 0 else 0
-        writer.writerow([user_data['username'], user_data['name'], user_data['department'], 
-                         user_data['total_days'], user_data['present_days'], user_data['absent_days'], 
-                         user_data['attendance_percentage']])
-    
-    return response
+    # Count attendance types
+    present_count = attendance_data.filter(status='Present').count()
+    half_present_count = attendance_data.filter(status='Half Present').count()
+    absent_count = attendance_data.filter(status='Absent').count()
+    late_count = attendance_data.filter(status='Late').count()
+
+    # Prepare attendance summary
+    attendance_summary = {
+        'total_days': total_days,
+        'present_count': present_count,
+        'half_present_count': half_present_count,
+        'absent_count': absent_count,
+        'late_count': late_count,
+        'overall_percentage': (present_count + (half_present_count * 0.5) + (late_count * 0.75) / total_days) * 100 if total_days > 0 else 0,
+    }
+
+    context = {
+        'user': user,
+
+        'attendance_data': attendance_data,
+        'attendance_summary': attendance_summary
+    }
+    return render(request, 'user_dashboard.html', context)
 
 @csrf_exempt
 def delete_user(request, user_id):
@@ -152,64 +154,9 @@ def update_user(request, user_id):
 
 @login_required
 def manager_dashboard(request):
-    user_count = User.objects.count()
     departments = Department.objects.all()
-    
     # Pass the data to the template
     return render(request, 'manager_dashboard.html', { 'departments': departments,})
-
-
-def admin_reports(request):
-    # Query all attendance records
-    attendance_queryset = Attendance.objects.annotate(
-        full_name=Concat(F('user_profile__user__first_name'), Value(' '), F('user_profile__user__last_name'))
-    ).values(
-        'user_profile__user__username',
-        'full_name',
-        'department__name',
-        'status',
-        'user_profile__user__id',
-    )
-    
-    # Prepare a dictionary to aggregate attendance data for each user
-    user_attendance = {}
-
-    for record in attendance_queryset:
-        user_id = record['user_profile__user__id']
-        if user_id not in user_attendance:
-            user_attendance[user_id] = {
-                'username': record['user_profile__user__username'],
-                'name': record['full_name'],
-                'department': record['department__name'],
-                'total_days': 0,
-                'present_days': 0,
-                'absent_days': 0,
-            }
-        
-        # Increment totals and attendance status counts
-        user_attendance[user_id]['total_days'] += 1
-        if record['status'] == 'Present':
-            user_attendance[user_id]['present_days'] += 1
-        else:
-            user_attendance[user_id]['absent_days'] += 1
-    
-    # Calculate attendance percentage for each user
-    for user_data in user_attendance.values():
-        user_data['attendance_percentage'] = round(
-            (user_data['present_days'] / user_data['total_days']) * 100, 2
-        ) if user_data['total_days'] > 0 else 0
-
-    # Convert to a list for template rendering
-    attendance_data = list(user_attendance.values())
-    departments=Department.objects.all()
-
-    # Context for rendering the template
-    context = {
-        'attendance_data': attendance_data,
-        'departments': departments
-    }
-    return render(request, 'admin_reports.html', context)
-
 
 
 def admin_settings(request):

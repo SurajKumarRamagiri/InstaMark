@@ -66,7 +66,7 @@ def recognise_face(request):
         face_embedding = np.array(face_rec_model.compute_face_descriptor(image_np, shape))
 
         # Get profiles in the department
-        profiles = Profile.objects.filter(department_id=department_id).exclude(face_embedding__isnull=True)
+        profiles = Profile.objects.filter(department_id=department_id,role='regular').exclude(face_embedding__isnull=True)
         if not profiles.exists():
             return JsonResponse({'message': 'No registered profiles in the department.'}, status=404)
 
@@ -104,6 +104,7 @@ def recognise_face(request):
             print(HALF_PRESENT_TIME_THRESHOLD)
             if time_difference < HALF_PRESENT_TIME_THRESHOLD:
                 last_attendance.status = 'Absent'
+                return JsonResponse({'message': f'Attendance already marked for \n{matched_username} ({matched_full_name}). \nplease try again after some time'}, status=200)
             elif HALF_PRESENT_TIME_THRESHOLD <= time_difference < ATTENDANCE_TIME_WINDOW:
                 last_attendance.status = 'Half Present'
                 last_attendance.check_out_time = timezone.now()
@@ -113,7 +114,7 @@ def recognise_face(request):
             
             print(last_attendance)            
             last_attendance.save()
-            return JsonResponse({'message': f'Attendance updated to {last_attendance.status} for {matched_username}.'}, status=200)
+            return JsonResponse({'message': f'Attendance updated to {last_attendance.status} for \n{matched_username} ({matched_full_name}).'}, status=200)
 
         # If no attendance record exists, create a new one
         department = Department.objects.get(id=department_id)
@@ -125,8 +126,9 @@ def recognise_face(request):
             fullname=matched_full_name,
             status='Absent',  # Initially mark as Absent
             check_in_time=timezone.now(),  # Mark check-in time
+            check_out_time=None,
         )
-        return JsonResponse({'message': f'Attendance recorded as Absent for {matched_username} (first recognition).'}, status=200)
+        return JsonResponse({'message': f'Attendance recorded for {matched_full_name} ({matched_username}).'}, status=200)
 
     except Exception as e:
         return JsonResponse({'error': f"An error occurred: {str(e)}"}, status=500)

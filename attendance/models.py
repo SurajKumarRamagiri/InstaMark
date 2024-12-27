@@ -10,7 +10,7 @@ class Attendance(models.Model):
     department_name = models.CharField(max_length=100, blank=True)  # For storing department name
     username = models.CharField(max_length=150, blank=True)  # For storing username
     fullname = models.CharField(max_length=150, blank=True)  # For storing full name
-    check_in_time = models.TimeField(null=True,auto_now_add=True)  # For storing the time of checkin
+    check_in_time = models.TimeField(null=True,blank=True)  # For storing the time of checkin
     check_out_time = models.TimeField(null=True,blank=True)  # For storing the time of checkout
     location = models.CharField(max_length=255, null=True, blank=True)  # New field for location
     # add late boolean value

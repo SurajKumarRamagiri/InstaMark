@@ -11,6 +11,58 @@ from django.views.decorators.csrf import csrf_exempt
 from .forms import DepartmentForm
 from django.utils.timezone import now
 from attendance.models import Attendance
+from django.core.paginator import Paginator
+
+def admin_reports(request):
+    # Fetch attendance data, limiting to 30 records
+    attendance_queryset = Attendance.objects.annotate(
+        full_name=Concat(F('user_profile__user__first_name'), Value(' '), F('user_profile__user__last_name'))
+    ).values(
+        'user_profile__user__username',
+        'full_name',
+        'department__name',
+        'status',
+        'user_profile__user__id',
+    ).annotate(
+        total_days=Count('date', distinct=True),
+        present_days=Count(Case(When(status='Present', then=1))),
+        half_present_days=Count(Case(When(status='Half Present', then=1))),
+        absent_days=Count(Case(When(status='Absent', then=1))),
+    ).annotate(
+        attendance_percentage=Case(
+            When(total_days__gt=0, then=((F('present_days') + F('half_present_days') * 0.5) * 100.0 / F('total_days'))),
+            default=0,
+            output_field=FloatField(),
+        ),
+    ).order_by('-date')[:30]  # Limit to a maximum of 30 records
+
+    # Prepare a dictionary to aggregate attendance data for each user
+    user_attendance = {}
+
+    for record in attendance_queryset:
+        user_id = record['user_profile__user__id']
+        if user_id not in user_attendance:
+            user_attendance[user_id] = {
+                'username': record['user_profile__user__username'],
+                'name': record['full_name'],
+                'department': record['department__name'],
+                'total_days': record['total_days'],
+                'present_days': record['present_days'],
+                'half_present_days': record['half_present_days'],
+                'absent_days': record['absent_days'],
+                'attendance_percentage': round(record['attendance_percentage'], 2),
+            }
+
+    # Convert to a list for template rendering
+    attendance_data = list(user_attendance.values())
+    departments = Department.objects.all()
+
+    # Context for rendering the template
+    context = {
+        'attendance_data': attendance_data,
+        'departments': departments
+    }
+    return render(request, 'admin_reports.html', context)
 
 
 @csrf_exempt

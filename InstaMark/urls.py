@@ -24,7 +24,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('attendance/reports/export/csv/', views.export_csv, name='export_csv'),
     path('face_recognition/', include('face_recognition.urls')),
     path('attendance/', include('attendance.urls')),
     path('users/', include('users.urls')),

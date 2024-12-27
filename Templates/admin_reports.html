@@ -57,11 +57,9 @@
       <button class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700" id="apply-filters">
         Apply Filters
       </button>
-    <a href="{% url 'export_csv' %}">
-      <button class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
+      <button id='export-btn' class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
         Export CSV
       </button>
-    </a>
     </div>
 </div>
 
@@ -123,7 +121,7 @@ document.getElementById('apply-filters').addEventListener('click', function() {
     if (percentage !== 'All') urlParams.append('percentage', percentage);
 
     // Use fetch to send the request and get a JSON response
-    fetch('/attendance/reports/?' + urlParams.toString(), {
+    fetch('/attendance/filtered_reports/?' + urlParams.toString(), {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
@@ -131,6 +129,7 @@ document.getElementById('apply-filters').addEventListener('click', function() {
     })
     .then(response => response.json())
     .then(data => {
+        console.log(data)
         // Update the table with the filtered data
         updateAttendanceTable(data);
     })
@@ -142,8 +141,6 @@ document.getElementById('apply-filters').addEventListener('click', function() {
 // Function to update the attendance table with the response data
 function updateAttendanceTable(data) {
     const tbody = document.querySelector('#attendance-table tbody');
-    console.log(data);
-    console.log(tbody);
     
     if (tbody) {
         // Clear the existing rows
@@ -167,6 +164,7 @@ function updateAttendanceTable(data) {
                 <td class="py-4 px-6 border-b text-sm">${item.department_name}</td>
                 <td class="py-4 px-6 border-b text-sm">${item.total_days}</td>
                 <td class="py-4 px-6 border-b text-sm">${item.present_days}</td>
+                <td class="py-4 px-6 border-b text-sm">${item.half_present_days}</td>
                 <td class="py-4 px-6 border-b text-sm">${item.absent_days}</td>
                 <td class="py-4 px-6 border-b text-sm">${item.attendance_percentage}%</td>
             `;
@@ -174,6 +172,30 @@ function updateAttendanceTable(data) {
         });
     }
 }
+document.getElementById('export-btn').addEventListener('click', () => {
+    const table = document.getElementById('attendance-table');
+    const rows = table.querySelectorAll('tr');
+
+    // Initialize CSV content
+    let csvContent = '';
+
+    // Loop through rows to extract data
+    rows.forEach((row) => {
+        const cells = row.querySelectorAll('th, td');
+        const rowData = Array.from(cells).map((cell) => `"${cell.textContent}"`).join(',');
+        csvContent += rowData + '\n';
+    });
+
+    // Create a Blob and trigger download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'attendance_report.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+});
 
   </script>
   
