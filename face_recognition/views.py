@@ -23,7 +23,10 @@ detector = dlib.get_frontal_face_detector()
 face_rec_model = dlib.face_recognition_model_v1('utilities/dlib_face_recognition_resnet_model_v1.dat')
 shape_predictor = dlib.shape_predictor('utilities/shape_predictor_68_face_landmarks.dat')
 
- # in minutes
+
+# Constants
+ATTENDANCE_TIME_WINDOW = timedelta(minutes=40)  # 40 minutes threshold for check-out
+HALF_PRESENT_TIME_THRESHOLD = ATTENDANCE_TIME_WINDOW/2  # 20 minutes threshold for half-present
 
 @csrf_exempt
 def recognise_face(request):
@@ -46,7 +49,7 @@ def recognise_face(request):
             format, imgstr = image_data.split(';base64,')
             image_bytes = base64.b64decode(imgstr)
             image = Image.open(BytesIO(image_bytes)).convert('RGB')
-        except Exception as e:
+        except Exception:
             return JsonResponse({'message': 'Invalid image format.'}, status=400)
 
         # Convert image to numpy array
@@ -68,7 +71,7 @@ def recognise_face(request):
             return JsonResponse({'message': 'No registered profiles in the department.'}, status=404)
 
         # Recognize face by comparing embeddings
-        matched_user, min_distance = None, RECOGNITION_THRESHOLD  # Threshold for recognition
+        matched_user, min_distance = None, RECOGNITION_THRESHOLD
         for profile in profiles:
             try:
                 known_embedding = np.array(profile.face_embedding, dtype=np.float64)
@@ -77,56 +80,177 @@ def recognise_face(request):
                     min_distance = distance
                     matched_user = profile
             except Exception:
-                continue  # Skip profiles with invalid embeddings
+                continue
 
         if not matched_user:
             return JsonResponse({'message': 'Face not recognized.'}, status=404)
 
         matched_username = matched_user.user.username
         matched_full_name = matched_user.user.get_full_name()
-        print(f"Matched user: {matched_username}, distance: {min_distance}")
+        print(matched_username)
 
-        try:
-            today = timezone.now().date()
-            last_attendance = check_last_attendance(matched_username, today)
+        today = timezone.now().date()
 
-            # Additional debugging
-            if last_attendance:
-                # print(f"Last attendance record: {last_attendance}")
-                time_difference = get_time_difference(last_attendance)
-                # print(f"Time difference: {time_difference}")
-                if time_difference < timedelta(minutes=ATTENDANCE_TIME_WINDOW):
-                    # print('before:',last_attendance.status)
-                    if last_attendance.status == 'Absent':
-                        # Update attendance if previously marked absent
-                        last_attendance.status = 'Present'
-                        # print('after:',last_attendance.status)
-                        last_attendance.save()
-                        return JsonResponse({'message': f'Attendance updated to Present for {matched_username}.'}, status=200)
-                    return JsonResponse({'message': 'Attendance already marked for this user.'}, status=200)
-            else:
-                print("No attendance record found")
+        # Check if attendance record exists for today
+        last_attendance = Attendance.objects.filter(
+            user_profile=matched_user,
+            date=today
+        ).first()
+        print(last_attendance)
+        if last_attendance:
+            # Update the existing record based on time of recognition
+            time_difference = (timezone.now() - datetime.combine(last_attendance.date, last_attendance.check_in_time))
+            print(time_difference)
+            print(HALF_PRESENT_TIME_THRESHOLD)
+            if time_difference < HALF_PRESENT_TIME_THRESHOLD:
+                last_attendance.status = 'Absent'
+            elif HALF_PRESENT_TIME_THRESHOLD <= time_difference < ATTENDANCE_TIME_WINDOW:
+                last_attendance.status = 'Half Present'
+                last_attendance.check_out_time = timezone.now()
+            elif time_difference >= ATTENDANCE_TIME_WINDOW:
+                last_attendance.status = 'Present'
+                last_attendance.check_out_time = timezone.now()
+            
+            print(last_attendance)            
+            last_attendance.save()
+            return JsonResponse({'message': f'Attendance updated to {last_attendance.status} for {matched_username}.'}, status=200)
 
-        except Exception as e:
-            print(f"Unexpected error: {str(e)}")
-
-        # Mark attendance
+        # If no attendance record exists, create a new one
         department = Department.objects.get(id=department_id)
-        print(f"Marking attendance for {matched_username} in {department.name}")
         Attendance.objects.create(
             user_profile=matched_user,
             department=department,
             department_name=department.name,
             username=matched_username,
             fullname=matched_full_name,
-            status='Present',
+            status='Absent',  # Initially mark as Absent
+            check_in_time=timezone.now(),  # Mark check-in time
         )
-        print(f"Attendance marked for {matched_username} in {department.name}")
-        return JsonResponse({'message': f'Face recognized successfully for {matched_full_name} ({matched_username}) \n marked as Present'}, status=200)
-        # return JsonResponse({'recognized_name': matched_username, 'full_name': matched_full_name}, status=200)
+        return JsonResponse({'message': f'Attendance recorded as Absent for {matched_username} (first recognition).'}, status=200)
 
     except Exception as e:
         return JsonResponse({'error': f"An error occurred: {str(e)}"}, status=500)
+
+
+
+
+# @csrf_exempt
+# def recognise_face(request):
+#     if request.method != 'POST':
+#         return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+#     try:
+#         # Parse request data
+#         data = json.loads(request.body)
+#         image_data = data.get('image')
+#         department_id = data.get('department_id')
+
+#         if not image_data:
+#             return JsonResponse({'message': 'Image data not provided.'}, status=400)
+#         if not department_id:
+#             return JsonResponse({'message': 'Department ID not provided.'}, status=400)
+
+#         # Decode the Base64 image data
+#         try:
+#             format, imgstr = image_data.split(';base64,')
+#             image_bytes = base64.b64decode(imgstr)
+#             image = Image.open(BytesIO(image_bytes)).convert('RGB')
+#         except Exception as e:
+#             return JsonResponse({'message': 'Invalid image format.'}, status=400)
+
+#         # Convert image to numpy array
+#         image_np = np.array(image)
+
+#         # Detect faces using dlib
+#         faces = detector(image_np, 1)
+#         if len(faces) != 1:
+#             return JsonResponse({'message': 'No face or multiple faces detected.'}, status=400)
+
+#         # Extract face landmarks and embeddings
+#         face = faces[0]
+#         shape = shape_predictor(image_np, face)
+#         face_embedding = np.array(face_rec_model.compute_face_descriptor(image_np, shape))
+
+#         # Get profiles in the department
+#         profiles = Profile.objects.filter(department_id=department_id).exclude(face_embedding__isnull=True)
+#         if not profiles.exists():
+#             return JsonResponse({'message': 'No registered profiles in the department.'}, status=404)
+
+#         # Recognize face by comparing embeddings
+#         matched_user, min_distance = None, RECOGNITION_THRESHOLD  # Threshold for recognition
+#         for profile in profiles:
+#             try:
+#                 known_embedding = np.array(profile.face_embedding, dtype=np.float64)
+#                 distance = np.linalg.norm(face_embedding - known_embedding)
+#                 if distance < min_distance:
+#                     min_distance = distance
+#                     matched_user = profile
+#             except Exception:
+#                 continue  # Skip profiles with invalid embeddings
+
+#         if not matched_user:
+#             return JsonResponse({'message': 'Face not recognized.'}, status=404)
+
+#         matched_username = matched_user.user.username
+#         matched_full_name = matched_user.user.get_full_name()
+#         print(f"Matched user: {matched_username}, distance: {min_distance}")
+
+#         try:
+#             today = timezone.now().date()
+#             last_attendance = check_last_attendance(matched_username, today)
+
+#             # Additional debugging
+#             if last_attendance:
+#                 # print(f"Last attendance record: {last_attendance}")
+#                 time_difference = get_time_difference(last_attendance)
+#                 print(f"Time difference: {time_difference}")
+#                 if time_difference < timedelta(minutes=ATTENDANCE_TIME_WINDOW):
+#                     print('before:',last_attendance.status)
+#                     if last_attendance.status == 'Absent':
+#                         # Update attendance if previously marked absent
+#                         last_attendance.status = 'Present'
+#                         # print('after:',last_attendance.status)
+#                         last_attendance.save()
+#                         return JsonResponse({'message': f'Attendance updated to Present for {matched_username}.'}, status=200)
+#                     return JsonResponse({'message': f'Attendance already marked for {matched_username}.'}, status=200)
+#                 else:
+#                     department = Department.objects.get(id=department_id)
+#                     Attendance.objects.create(
+#                     user_profile=matched_user,
+#                     department=department,
+#                     department_name=department.name,
+#                     username=matched_username,
+#                     fullname=matched_full_name,
+#                     status='Present',
+#                     )
+#                     print(f"Attendance marked for {matched_username} in {department.name}")
+#                     return JsonResponse({'message': f'Face recognized successfully for {matched_full_name} ({matched_username}) \n marked as Present'}, status=200)
+#             else:
+#                 print("No attendance record found")
+
+#         except Exception as e:
+#             print(f"Unexpected error: {str(e)}")
+
+#         # Mark attendance
+#         department = Department.objects.get(id=department_id)
+#         print(f"Marking attendance for {matched_username} in {department.name}")
+#         try:
+#             Attendance.objects.create(
+#                 user_profile=matched_user,
+#                 department=department,
+#                 department_name=department.name,
+#                 username=matched_username,
+#                 fullname=matched_full_name,
+#                 status='Present',
+#             )
+#         except Exception as e:
+#             print(f"Unexpected error: {str(e)}")
+#         print(f"Attendance marked for {matched_username} in {department.name}")
+#         return JsonResponse({'message': f'Face recognized successfully for {matched_full_name} ({matched_username}) \n marked as Present'}, status=200)
+#         # return JsonResponse({'recognized_name': matched_username, 'full_name': matched_full_name}, status=200)
+
+#     except Exception as e:
+#         return JsonResponse({'error': f"An error occurred: {str(e)}"}, status=500)
 
 def check_last_attendance(matched_username, today):
     try:
@@ -134,7 +258,7 @@ def check_last_attendance(matched_username, today):
         last_attendance = Attendance.objects.filter(
             Q(user_profile__user__username=matched_username) & 
             Q(date=today)
-        ).order_by('-time').first()
+        ).order_by('-check_in_time').first()
 
         # Detailed logging and error handling
         if last_attendance:
@@ -156,7 +280,7 @@ def get_time_difference(last_attendance):
     current_time = timezone.now()
     
     # Ensure both times are timezone aware and in the same timezone
-    last_attendance_time = datetime.combine(last_attendance.date, last_attendance.time)
+    last_attendance_time = datetime.combine(last_attendance.date, last_attendance.check_in_time)
     
     # Calculate time difference
     time_difference = current_time - last_attendance_time

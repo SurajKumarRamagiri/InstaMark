@@ -308,27 +308,28 @@
         <h1>User Management</h1>
 
         <div class="filter-panel">
-            <input type="text" placeholder="Search by name, email, or username..." />
-            <select>
+            <input id="searchInput" type="text" placeholder="Search by name, email, or username..." />
+            <select id="departmentFilter">
                 <option value="">Filter by Department</option>
                 {% for department in departments %}
                 <option value="{{ department.id }}">{{ department.name }}</option>
-                {% endfor %}           
+                {% endfor %}
             </select>
-            <select>
+            <select id="roleFilter">
                 <option value="">Filter by Role</option>
                 <option value="superuser">Superuser</option>
                 <option value="staff">Staff</option>
                 <option value="regular">Regular User</option>
             </select>
-            <select>
+            <select id="statusFilter">
                 <option value="">Filter by Status</option>
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
             </select>
-            <button>Search</button>
+            <button onclick="applyFilters()">Search</button>
             <button class="create-user-btn" onclick="openAddUserModal()">Create New User</button>
         </div>
+        
 
         <table class="user-table">
             <thead>
@@ -658,6 +659,79 @@
                 if (key === name) return value;
             }
             return null;
+        }
+        function applyFilters() {
+            const searchQuery = document.getElementById("searchInput").value;
+            const department = document.getElementById("departmentFilter").value;
+            const role = document.getElementById("roleFilter").value;
+            const status = document.getElementById("statusFilter").value;
+            
+            // Get selected values
+            // department = departmentSelect.value !== "Filter by Department" ? departmentSelect.value : "";
+            // role = roleSelect.value !== "Filter by Role" ? roleSelect.value : "";
+            // status = statusSelect.value !== "Filter by Status" ? statusSelect.value : "";
+            
+            // Prepare query parameters
+            const params = new URLSearchParams({
+                search: searchQuery,
+                department: department,
+                role: role,
+                status: status,
+            });
+
+            fetch(`/users/user_list?${params.toString()}`, {
+                method: 'GET',
+                headers: {
+                    "X-CSRFToken": getCSRFToken(),
+                },
+            })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch user data.');
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    updateTable(data.users);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function updateTable(users) {
+            const tableBody = document.querySelector('.user-table tbody');
+            tableBody.innerHTML = ''; // Clear existing rows
+            if (users.length === 0) {
+                // If no users are present, display a "No data found" row
+                const noDataRow = `
+                    <tr>
+                        <td colspan="8" style="text-align: center;">No data found</td>
+                    </tr>
+                `;
+                tableBody.insertAdjacentHTML('beforeend', noDataRow);
+                return;
+            }
+
+            users.forEach((user) => {
+                const row = `
+                    <tr id="row-${user.id}">
+                        <td>${user.id}</td>
+                        <td>${user.username}</td>
+                        <td>${user.full_name}</td>
+                        <td>${user.email}</td>
+                        <td>${user.department}</td>
+                        <td>${user.role}</td>
+                        <td>${user.status}</td>
+                        <td>
+                            <button class="edit" onclick="editRow(this)">Edit</button>
+                            <button class="delete" onclick="deleteUser('${user.id}')">Delete</button>
+                            <button class="register-face" onclick="openCameraModal('${user.id}')">Register Face</button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.insertAdjacentHTML('beforeend', row);
+            });
         }
 
     </script>

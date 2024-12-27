@@ -1,0 +1,320 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Attendance Reports - InstaMark Admin Dashboard{% endblock %}
+
+{% block content %}
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   Attendance Reports - Face Recognition Attendance Tracker
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+ </head>
+ <body class="font-roboto bg-gray-100">
+  <div class="min-h-screen flex flex-col">
+   <!-- Main Content -->
+   <div class="container mx-auto flex-1 p-6">
+<!-- Filter Panel -->
+<div class="bg-white p-6 rounded-lg shadow-md mb-6">
+    <h3 class="text-lg font-semibold mb-4">
+      Attendance Reports
+    </h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div>
+        <label class="block text-gray-700" for="from-date">From Date</label>
+        <input class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" id="from-date" type="date"/>
+      </div>
+      <div>
+        <label class="block text-gray-700" for="to-date">To Date</label>
+        <input class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" id="to-date" type="date"/>
+      </div>
+      <div>
+        <label class="block text-gray-700" for="department">Department</label>
+        <select class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" id="department">
+          <option>All Departments</option>
+          {% for department in departments %}
+          <option value="{{ department.id }}">{{ department.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="block text-gray-700" for="percentage">Attendance Percentage</label>
+        <select class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" id="percentage">
+          <option>All</option>
+          <option>90% and above</option>
+          <option>80% - 89%</option>
+          <option>70% - 79%</option>
+          <option>Below 70%</option>
+        </select>
+      </div>
+    </div>
+    <div class="mt-4 flex space-x-4">
+      <button class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700" id="apply-filters">
+        Apply Filters
+      </button>
+    <a href="{% url 'export_csv' %}">
+      <button class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
+        Export CSV
+      </button>
+    </a>
+    </div>
+</div>
+
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <h3 class="text-lg font-semibold mb-4">Attendance Data</h3>
+    <div class="overflow-x-auto">
+      <table id= 'attendance-table' class="min-w-full bg-white text-center border-collapse">
+        <thead>
+          <tr>
+            <th class="py-4 px-6 border-b font-medium text-sm text-gray-600">Username</th>
+            <th class="py-4 px-6 border-b font-medium text-sm text-gray-600">Name</th>
+            <th class="py-4 px-6 border-b font-medium text-sm text-gray-600">Department</th>
+            <th class="py-4 px-6 border-b font-medium text-sm text-gray-600">Total Days</th>
+            <th class="py-4 px-6 border-b font-medium text-sm text-gray-600">Present Days</th>
+            <th class="py-4 px-6 border-b font-medium text-sm text-gray-600">Half-Present Days</th>
+            <th class="py-4 px-6 border-b font-medium text-sm text-gray-600">Absent Days</th>
+            <th class="py-4 px-6 border-b font-medium text-sm text-gray-600">Attendance Percentage</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if attendance_data %}
+            {% for record in attendance_data %}
+              <tr>
+                <td class="py-4 px-6 border-b text-sm">{{ record.username }}</td>
+                <td class="py-4 px-6 border-b text-sm">{{ record.name }}</td>
+                <td class="py-4 px-6 border-b text-sm">{{ record.department }}</td>
+                <td class="py-4 px-6 border-b text-sm">{{ record.total_days }}</td>
+                <td class="py-4 px-6 border-b text-sm">{{ record.present_days }}</td>
+                <td class="py-4 px-6 border-b text-sm">{{ record.half_present_days }}</td>
+                <td class="py-4 px-6 border-b text-sm">{{ record.absent_days }}</td>
+                <td class="py-4 px-6 border-b text-sm">{{ record.attendance_percentage }}%</td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="7" class="py-4 px-6 text-sm text-center">No attendance data available.</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+   </div>   
+  </div>
+ </body>
+</html>
+<script>
+document.getElementById('apply-filters').addEventListener('click', function() {
+    const fromDate = document.getElementById('from-date').value;
+    const toDate = document.getElementById('to-date').value;
+    const department = document.getElementById('department').value;
+    const percentage = document.getElementById('percentage').value;
+
+    const urlParams = new URLSearchParams();
+
+    if (fromDate) urlParams.append('from_date', fromDate);
+    if (toDate) urlParams.append('to_date', toDate);
+    if (department !== 'All Departments') urlParams.append('department', department);
+    if (percentage !== 'All') urlParams.append('percentage', percentage);
+
+    // Use fetch to send the request and get a JSON response
+    fetch('/attendance/reports/?' + urlParams.toString(), {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Update the table with the filtered data
+        updateAttendanceTable(data);
+    })
+    .catch(error => {
+        console.error('Error fetching data:', error);
+    });
+});
+
+// Function to update the attendance table with the response data
+function updateAttendanceTable(data) {
+    const tbody = document.querySelector('#attendance-table tbody');
+    console.log(data);
+    console.log(tbody);
+    
+    if (tbody) {
+        // Clear the existing rows
+        tbody.innerHTML = '';
+    } else {
+        console.error('Table body element not found');
+        return;
+    }
+    tbody.innerHTML = '';  // Clear existing rows
+
+    if (data.length === 0) {
+        // If no data is found, show "No data found"
+        tbody.innerHTML = '<tr><td colspan="6">No data found</td></tr>';
+    } else {
+        // Populate the table with new data
+        data.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="py-4 px-6 border-b text-sm">${item.username}</td>
+                <td class="py-4 px-6 border-b text-sm">${item.full_name}</td>
+                <td class="py-4 px-6 border-b text-sm">${item.department_name}</td>
+                <td class="py-4 px-6 border-b text-sm">${item.total_days}</td>
+                <td class="py-4 px-6 border-b text-sm">${item.present_days}</td>
+                <td class="py-4 px-6 border-b text-sm">${item.absent_days}</td>
+                <td class="py-4 px-6 border-b text-sm">${item.attendance_percentage}%</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+}
+
+  </script>
+  
+{% endblock %}
+<!-- <div class="card">
+    <div class="card-title">Attendance Reports</div>
+    <div class="card-content">
+        <form id="filterForm">
+            <label for="startDate">Start Date:</label>
+            <input type="date" id="startDate" name="startDate" required>
+            <label for="endDate">End Date:</label>
+            <input type="date" id="endDate" name="endDate" required>
+            <button type="submit">Filter</button>
+        </form>
+    </div>
+</div>
+
+<div class="chart">
+    <canvas id="attendanceChart"></canvas>
+</div>
+
+<div class="card">
+    <div class="card-title">Detailed Attendance Report</div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th class="actions">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="attendanceTableBody">
+            //Sample data rows; these would be dynamically generated from your backend
+            <tr>
+                <td>John Doe</td>
+                <td>2024-01-01</td>
+                <td>Present</td>
+                <td class="actions">
+                    <i class="fas fa-edit" title="Edit"></i>
+                    <i class="fas fa-trash" title="Delete"></i>
+                </td>
+            </tr>
+            <tr>
+                <td>Jane Smith</td>
+                <td>2024-01-01</td>
+                <td>Absent</td>
+                <td class="actions">
+                    <i class="fas fa-edit" title="Edit"></i>
+                    <i class="fas fa-trash" title="Delete"></i>
+                </td>
+            </tr>
+            // More rows can be added here
+        </tbody>
+    </table>
+</div>
+
+<script>
+    document.getElementById('filterForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        // Fetch filtered data from the server (this is a placeholder)
+        fetch(`/api/attendance?start=${startDate}&end=${endDate}`)
+            .then(response => response.json())
+            .then(data => {
+                // Clear the existing table body
+                const tableBody = document.getElementById('attendanceTableBody');
+                tableBody.innerHTML = '';
+
+                // Populate the table with new data
+                data.forEach(record => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${record.name}</td>
+                        <td>${record.date}</td>
+                        <td>${record.status}</td>
+                        <td class="actions">
+                            <i class="fas fa-edit" title="Edit" onclick="editRecord(${record.id})"></i>
+                            <i class="fas fa-trash" title="Delete" onclick="deleteRecord(${record.id})"></i>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+                // Update the chart with new data
+                updateChart(data);
+            })
+            .catch(error => console.error('Error fetching attendance data:', error));
+    });
+
+    function updateChart(data) {
+        const ctx = document.getElementById('attendanceChart').getContext('2d');
+        const labels = data.map(record => record.date);
+        const presentData = data.map(record => record.status === 'Present' ? 1 : 0);
+        const absentData = data.map(record => record.status === 'Absent' ? 1 : 0);
+
+        const attendanceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Present',
+                    data: presentData,
+                    borderColor: '#007BFF',
+                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                    fill: true
+                }, {
+                    label: 'Absent',
+                    data: absentData,
+                    borderColor: '#FF9900',
+                    backgroundColor: 'rgba(255, 153, 0, 0.1)',
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    },
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    function editRecord(id) {
+        // Logic to edit the record
+        alert(`Edit record with ID: ${id}`);
+    }
+
+    function deleteRecord(id) {
+        // Logic to delete the record
+        if (confirm(`Are you sure you want to delete record with ID: ${id}?`)) {
+            // Perform delete operation
+            alert(`Record with ID: ${id} deleted.`);
+        }
+    }
+</script> -->

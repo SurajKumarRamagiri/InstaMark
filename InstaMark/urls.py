@@ -24,6 +24,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    path('attendance/reports/export/csv/', views.export_csv, name='export_csv'),
     path('face_recognition/', include('face_recognition.urls')),
     path('attendance/', include('attendance.urls')),
     path('users/', include('users.urls')),
@@ -31,7 +32,7 @@ urlpatterns = [
     path('update-user/<int:user_id>/', views.update_user, name='update_user'),
     path('add_user/', user_views.add_user, name='add_user'),
     path('manager/dashboard/', views.manager_dashboard,name='manager_dashboard'),
-    path('reports/',views.reports,name='reports'),
+    path('admin/reports/',views.admin_reports,name='admin_reports'),
     path('admin/settings/',views.admin_settings,name='admin_settings'),
     path('settings/',views.settings,name='settings'),
     path('admin/attendance/',views.admin_attendance ,name='admin_attendance'),

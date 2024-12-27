@@ -6,6 +6,60 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, Http404
 from django.contrib import messages
+from django.db.models import Q
+from django.views.decorators.csrf import csrf_exempt
+from .forms import DepartmentForm
+from django.utils.timezone import now
+from attendance.models import Attendance
+
+
+@csrf_exempt
+def user_list(request):
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+    search = request.GET.get('search', '')
+    department_id = request.GET.get('department', '')
+    role = request.GET.get('role', '')
+    status = request.GET.get('status', '')
+
+    users = User.objects.select_related('profile').all()
+    print(users)
+
+    # Apply filters
+    if search:
+        users = users.filter(
+            Q(username__icontains=search) |
+            Q(email__icontains=search) |
+            Q(first_name__icontains=search) |
+            Q(last_name__icontains=search)
+        )
+        print('1',users)
+    if department_id:
+        users = users.filter(profile__department_id=department_id)
+        print('2',users)
+    if role:
+        users = users.filter(profile__role=role)
+        print('3',users)
+
+    if status:
+        users = users.filter(is_active=(status.lower() == 'active'))
+        print('4',users)
+
+    user_data = [
+        {
+            'id': user.id,
+            'username': user.username,
+            'full_name': f"{user.first_name} {user.last_name}",
+            'email': user.email,
+            'department': user.profile.department.name if user.profile.department else '',
+            'role': user.profile.role,
+            'status': 'Active' if user.is_active else 'Inactive',
+        }
+        for user in users
+    ]
+    return JsonResponse({'users': user_data})
+
 
 
 
@@ -35,17 +89,35 @@ def edit_department(request, department_id):
     return redirect("manage_departments")
 
 @login_required
-def add_department(request):
-    if request.method == 'POST':
-        # Handling new department addition
-        department_name = request.POST.get('name')
-        print(department_name)
-        if department_name:
-            Department.objects.create(name=department_name)
-        return redirect('admin_settings')
-    
+def manage_departments(request):
     departments = Department.objects.all()
-    return render(request, 'admin_settings.html', {'departments': departments})
+    
+    if request.method == 'POST':
+        # Add a new department
+        if 'add_department' in request.POST:
+            form = DepartmentForm(request.POST)
+            if form.is_valid():
+                form.save()
+                return redirect('admin_settings')
+    
+        # Edit an existing department
+        elif 'edit_department' in request.POST:
+            department_id = request.POST.get('department_id')
+            department = get_object_or_404(Department, id=department_id)
+            form = DepartmentForm(request.POST, instance=department)
+            if form.is_valid():
+                form.save()
+                return redirect('admin_settings')
+    
+        # Delete a department
+        elif 'delete_department' in request.POST:
+            department_id = request.POST.get('department_id')
+            department = get_object_or_404(Department, id=department_id)
+            department.delete()
+            return redirect('admin_settings')
+
+    return redirect('admin_settings')
+
 
 
 def add_user(request):
