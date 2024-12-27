@@ -140,36 +140,52 @@ def edit_department(request, department_id):
             messages.error(request, "Department name cannot be empty.")
     return redirect("manage_departments")
 
-@login_required
+
 def manage_departments(request):
     departments = Department.objects.all()
-    
     if request.method == 'POST':
-        # Add a new department
-        if 'add_department' in request.POST:
+        if 'add' in request.POST:  # Adding a new department
             form = DepartmentForm(request.POST)
             if form.is_valid():
                 form.save()
-                return redirect('admin_settings')
-    
-        # Edit an existing department
-        elif 'edit_department' in request.POST:
-            department_id = request.POST.get('department_id')
-            department = get_object_or_404(Department, id=department_id)
+                return redirect('manage_departments')
+        elif 'edit' in request.POST:  # Editing an existing department
+            department = get_object_or_404(Department, pk=request.POST['edit'])
             form = DepartmentForm(request.POST, instance=department)
             if form.is_valid():
                 form.save()
-                return redirect('admin_settings')
-    
-        # Delete a department
-        elif 'delete_department' in request.POST:
-            department_id = request.POST.get('department_id')
-            department = get_object_or_404(Department, id=department_id)
+                return redirect('manage_departments')
+        elif 'delete' in request.POST:  # Deleting a department
+            department = get_object_or_404(Department, pk=request.POST['delete'])
             department.delete()
-            return redirect('admin_settings')
+            return redirect('manage_departments')
+    else:
+        form = DepartmentForm()  # For adding a new department
 
-    return redirect('admin_settings')
+    return render(request, 'settings/manage_departments.html', {
+        'departments': departments,
+        'form': form,
+    })
 
+
+def add_dept(request):
+    if request.method == 'POST':
+        dept_name = request.POST['dept_name']
+        try:
+            # Create new user
+            dept ,created= Department.objects.create(
+                name=dept_name,
+            )
+            
+            # If the  is not created (i.e., it already exists), update it
+            if not created:
+                dept.name = dept_name
+                dept.save()
+            return redirect('admin_settings')  # Redirect to a page showing the user list
+
+        except IntegrityError as e:
+            return render(request, 'error.html', {'message': str(e)})
+    return redirect('admin_users')
 
 
 def add_user(request):

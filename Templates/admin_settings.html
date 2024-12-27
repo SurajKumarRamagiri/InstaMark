@@ -47,27 +47,6 @@
                         </div>
                     </div>
 
-                    <!-- Notification Settings -->
-                    <div class="mb-8">
-                        <h3 class="text-2xl font-semibold text-gray-800 mb-4">Notification Settings</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="email-notifications" class="block text-gray-700 font-medium">Email Notifications</label>
-                                <select id="email-notifications" class="mt-1 block w-3/4 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                                    <option value="enabled">Enabled</option>
-                                    <option value="disabled">Disabled</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="sms-notifications" class="block text-gray-700 font-medium">SMS Notifications</label>
-                                <select id="sms-notifications" class="mt-1 block w-3/4 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                                    <option value="enabled">Enabled</option>
-                                    <option value="disabled">Disabled</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Security Settings -->
                     <div class="mb-8">
                         <h3 class="text-2xl font-semibold text-gray-800 mb-4">Security Settings</h3>
@@ -115,9 +94,9 @@
                             <div>
                                 <label for="user-roles" class="block text-gray-700 font-medium">User Roles</label>
                                 <select id="user-roles" class="mt-1 block w-3/4 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                                    <option value="admin">Admin</option>
-                                    <option value="editor">Editor</option>
-                                    <option value="viewer">Viewer</option>
+                                    <option value="admin">superuser</option>
+                                    <option value="editor">manager</option>
+                                    <option value="viewer">regular</option>
                                 </select>
                             </div>
                             <div>
@@ -125,25 +104,6 @@
                                 <select id="account-activation" class="mt-1 block w-3/4 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
                                     <option value="auto">Automatic</option>
                                     <option value="manual">Manual</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Data Management Settings -->
-                    <div class="mb-8">
-                        <h3 class="text-2xl font-semibold text-gray-800 mb-4">Data Management Settings</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="data-retention" class="block text-gray-700 font-medium">Data Retention Period</label>
-                                <input type="number" id="data-retention" class="mt-1 block w-3/4 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Enter retention period in days">
-                            </div>
-                            <div>
-                                <label for="backup-frequency" class="block text-gray-700 font-medium">Backup Frequency</label>
-                                <select id="backup-frequency" class="mt-1 block w-3/4 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                                    <option value="daily">Daily</option>
-                                    <option value="weekly">Weekly</option>
-                                    <option value="monthly">Monthly</option>
                                 </select>
                             </div>
                         </div>

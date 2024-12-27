@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -25,6 +26,18 @@
             font-size: 1.5em;
             font-weight: 700;
         }
+        .password-field {
+            position: relative;
+        }
+        .password-eye-icon {
+            position: absolute;
+            right: 10px;
+            top: 70%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            color: #007BFF;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -48,28 +61,18 @@
             <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
             <input type="email" name="email" id="email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
         </div>
-        <div>
+        <div class="password-field">
             <label for="password1" class="block text-sm font-medium text-gray-700">Password</label>
             <input type="password" name="password1" id="password1" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            <i class="py-4 fas fa-eye password-eye-icon" id="toggle-password1"></i>
         </div>
-        <div>
+        <div class="password-field">
             <label for="password2" class="block text-sm font-medium text-gray-700">Confirm Password</label>
             <input type="password" name="password2" id="password2" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            <i class=" fas fa-eye password-eye-icon" id="toggle-password2"></i>
         </div>
-        <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600">Sign Up</button>
+        <button type="submit" id="signup-button" class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600">Sign Up</button>
     </form>
-    
-    <!-- <div class="mt-6">
-        <p class="text-center text-gray-600">Or sign up with</p>
-        <div class="flex justify-center mt-4 space-x-4">
-            <a href="#" class="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-700 hover:bg-gray-100">
-                <i class="fab fa-google mr-2"></i> Google
-            </a>
-            <a href="#" class="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-700 hover:bg-gray-100">
-                <i class="fab fa-apple mr-2"></i> Apple
-            </a>
-        </div>
-    </div> -->
 
     <p class="text-center mt-4">Already have an account? <a class="text-blue-500 hover:underline" href="{% url 'login' %}">Login</a> here</p>
 
@@ -80,7 +83,7 @@
             {% endfor %}
         </div>
     {% endif %}
-    
+
     {% if form.errors %}
         <div class="mt-4 p-4 bg-red-100 text-red-700 rounded-md">
             <ul>
@@ -98,20 +101,28 @@
 </div>
 
 <script>
-    document.getElementById('signup-form').addEventListener('keydown', function(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault(); // Prevent form submission
-            const inputs = Array.from(this.querySelectorAll('input'));
-            const currentIndex = inputs.indexOf(event.target);
-            const nextInput = inputs[currentIndex + 1];
-            if (nextInput) {
-                nextInput.focus(); // Move focus to the next input field
-            }
-            else {
-                document.getElementById('signup-button').click(); // Click the signup button if all inputs are completed
-            }
-        }
+    // Toggle password visibility
+    document.getElementById('toggle-password1').addEventListener('click', function() {
+        const passwordField = document.getElementById('password1');
+        togglePasswordVisibility(passwordField, this);
     });
+
+    document.getElementById('toggle-password2').addEventListener('click', function() {
+        const passwordField = document.getElementById('password2');
+        togglePasswordVisibility(passwordField, this);
+    });
+
+    function togglePasswordVisibility(passwordField, icon) {
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            passwordField.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
 </script>
 </body>
 </html>

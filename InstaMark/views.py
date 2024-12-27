@@ -16,6 +16,31 @@ from django.db.models.functions import Concat
 from django.shortcuts import render
 from django.utils.timezone import now,localdate,timedelta
 from attendance.models import Attendance
+from users.forms import DepartmentForm
+
+# View for editing a department
+def edit_department(request, department_id):
+    department = get_object_or_404(Department, id=department_id)
+
+    if request.method == 'POST':
+        form = DepartmentForm(request.POST, instance=department)
+        if form.is_valid():
+            form.save()
+            return redirect('admin_settings')  # Redirect to the list of departments
+    else:
+        form = DepartmentForm(instance=department)
+    
+    return render(request, 'admin_settings.html', {'form': form, 'department': department})
+
+# View for deleting a department
+def delete_department(request, department_id):
+    department = get_object_or_404(Department, id=department_id)
+    
+    if request.method == 'POST':
+        department.delete()
+        return JsonResponse({'success': True})
+    else:
+        return JsonResponse({'success': False})
 
 def admin_reports(request):
     # Query all attendance records
