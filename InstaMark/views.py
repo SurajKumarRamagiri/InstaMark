@@ -78,6 +78,7 @@ def user_dashboard(request):
     half_present_count = attendance_data.filter(status='Half Present').count()
     absent_count = attendance_data.filter(status='Absent').count()
     late_count = attendance_data.filter(status='Late').count()
+    print(total_days,present_count,half_present_count,absent_count,late_count)
 
     # Prepare attendance summary
     attendance_summary = {
@@ -86,12 +87,11 @@ def user_dashboard(request):
         'half_present_count': half_present_count,
         'absent_count': absent_count,
         'late_count': late_count,
-        'overall_percentage': (present_count + (half_present_count * 0.5) + (late_count * 0.75) / total_days) * 100 if total_days > 0 else 0,
+        'overall_percentage': ((present_count + (half_present_count * 0.5) + (late_count * 0.75)) / total_days) * 100 if total_days > 0 else 0,
     }
 
     context = {
         'user': user,
-
         'attendance_data': attendance_data,
         'attendance_summary': attendance_summary
     }
@@ -274,15 +274,18 @@ def user_login(request):
                     return redirect('user_dashboard')
                 else:
                     return redirect('dashboard')  # Default if role is unknown
-
+            else:
+                # Invalid credentials error
+                messages.error(request, "Invalid username or password.")
         
                 # If authentication failed, add an error to the form
-        messages.error(request, 'Invalid username or password')
-        return redirect('login')
+        else:
+            messages.error(request, 'please correct the errors below')
+
     else:
         # If the request method is not POST, simply show the login page
         form = AuthenticationForm()
-        return render(request, 'login.html', {'form': form})
+    return render(request, 'login.html', {'form': form})
 
 
 def user_logout(request):

@@ -55,11 +55,11 @@
         }
         .password-eye-icon {
             position: absolute;
-            right: 10px;  
-            top: 73%;  
-            transform: translateY(-50%);  
-            font-size: 1.5em;  
-            color: #007bff;  
+            right: 10px;
+            top: 73%;
+            transform: translateY(-50%);
+            font-size: 1.5em;
+            color: #007bff;
             cursor: pointer;
         }
     </style>
@@ -73,16 +73,43 @@
     <div class="container">
         <div class="login-container">
             <h3 class="text-center mb-4">Login</h3>
+            <!-- Display Non-Field Errors -->
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
             <form method="POST" id="login-form">
                 {% csrf_token %}
                 <div class="mb-3">
                     <label for="id_username" class="form-label">Username</label>
-                    <input type="text" name="username" class="form-control" id="id_username" required>
+                    <input type="text" name="username" class="form-control {% if form.username.errors %}is-invalid{% endif %}" id="id_username" required>
+                    <!-- Display Field Errors -->
+                    {% if form.username.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.username.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
                 <div class="mb-3 password-field">
                     <label for="id_password" class="form-label">Password</label>
-                    <input type="password" name="password" class="form-control" id="id_password" required>
+                    <input type="password" name="password" class="form-control {% if form.password.errors %}is-invalid{% endif %}" id="id_password" required>
                     <i class="bi bi-eye password-eye-icon" id="eye-icon"></i>
+                    <!-- Display Field Errors -->
+                    {% if form.password.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.password.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
                 <button type="submit" class="btn btn-primary btn-login">Login</button>
 
@@ -90,23 +117,6 @@
                     <p>Don't have an account? <a href="{% url 'signup' %}">Sign up</a> here</p>
                 </div>
             </form>
-
-            <div id="error-messages" class="alert alert-danger" style="display: none;"></div>
-
-            {% if form.errors %}
-                <div class="alert alert-danger">
-                    <ul>
-                        {% for field in form %}
-                            {% for error in field.errors %}
-                                <li>{{ error }}</li>
-                            {% endfor %}
-                        {% endfor %}
-                        {% for error in form.non_field_errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
         </div>
     </div>
 
