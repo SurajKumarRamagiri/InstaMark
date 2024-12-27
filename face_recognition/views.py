@@ -25,7 +25,7 @@ shape_predictor = dlib.shape_predictor('utilities/shape_predictor_68_face_landma
 
 
 # Constants
-ATTENDANCE_TIME_WINDOW = timedelta(minutes=40)  # 40 minutes threshold for check-out
+ATTENDANCE_TIME_WINDOW = timedelta(minutes=5)  # 40 minutes threshold for check-out
 HALF_PRESENT_TIME_THRESHOLD = ATTENDANCE_TIME_WINDOW/2  # 20 minutes threshold for half-present
 
 @csrf_exempt
@@ -106,11 +106,17 @@ def recognise_face(request):
                 last_attendance.status = 'Absent'
                 return JsonResponse({'message': f'Attendance already marked for \n{matched_username} ({matched_full_name}). \nplease try again after some time'}, status=200)
             elif HALF_PRESENT_TIME_THRESHOLD <= time_difference < ATTENDANCE_TIME_WINDOW:
-                last_attendance.status = 'Half Present'
-                last_attendance.check_out_time = timezone.now()
+                if last_attendance.status == 'Half Present':
+                    return JsonResponse({'message': f'Attendance already marked for \n{matched_username} ({matched_full_name}).'}, status=200)
+                else:
+                    last_attendance.status = 'Half Present'
+                    last_attendance.check_out_time = timezone.now()
             elif time_difference >= ATTENDANCE_TIME_WINDOW:
-                last_attendance.status = 'Present'
-                last_attendance.check_out_time = timezone.now()
+                if last_attendance.status == ("Half Present" or "Present"):
+                    return JsonResponse({'message': f'Attendance already marked for \n{matched_username} ({matched_full_name}).'}, status=200)
+                else:
+                    last_attendance.status = 'Present'
+                    last_attendance.check_out_time = timezone.now()
             
             print(last_attendance)            
             last_attendance.save()
