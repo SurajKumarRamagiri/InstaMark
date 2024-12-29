@@ -24,6 +24,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    path('settings/',views.modify_and_get_settings,name='settings'),
     path('add-department/', views.add_department, name='add_department'),
     path('edit-department/', views.edit_department, name='edit_department'),
     path('delete-department/', views.delete_department, name='delete_department'),

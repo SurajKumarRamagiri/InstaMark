@@ -35,6 +35,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'settings',
     'crispy_forms',
     'face_recognition',
     'attendance',
@@ -148,3 +149,12 @@ LOGIN_URL = '/login/'  # The URL for your custom login page
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",  # Adjust as needed
 ]
+
+# Email settings in settings.py
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Use your email provider's SMTP server
+EMAIL_PORT = 587  # Common SMTP port
+EMAIL_USE_TLS = True  # TLS security
+EMAIL_HOST_USER = 'instamark.attendancetracker@gmail.com'  # Your email address
+EMAIL_HOST_PASSWORD = 'InstaMark@1412'  # Your email password or app-specific password
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Default from email

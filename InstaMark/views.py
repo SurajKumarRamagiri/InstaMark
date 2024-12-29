@@ -19,10 +19,73 @@ from attendance.models import Attendance
 from users.forms import DepartmentForm
 from django.utils.decorators import method_decorator
 from django.http import QueryDict
-from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
-from django.views.decorators.csrf import csrf_exempt
 from django.views import View
+from django.http import HttpResponseBadRequest
+from settings.views import get_system_settings
+from settings.models import SystemSettings
+from django.http import JsonResponse
+from django.shortcuts import render, redirect
+from django.core.mail import send_mail
+from django.conf import settings
+
+def send_notification_email(subject, message, recipient_email):
+    try:
+        # Sending the email
+        send_mail(
+            subject,
+            message,
+            settings.EMAIL_HOST_USER,  # Sender's email
+            [recipient_email],  # List of recipients
+            fail_silently=False,  # Don't fail silently, show errors
+        )
+        return "Email sent successfully"
+    except Exception as e:
+        # Log the exception and return a failure message
+        print(f"Error while sending email: {str(e)}")
+        return f"Failed to send email: {str(e)}"
+
+@csrf_exempt
+def modify_and_get_settings(request):
+    # Retrieve the settings object, assuming there is only one row in the settings table
+    settings = get_system_settings()
+
+    if not settings:
+        settings = SystemSettings.objects.create(
+            attendance_time_limit=30,
+            face_recognition_threshold=0.6
+        )
+
+    if request.method == 'POST':
+        # Get the form data from the POST request
+        attendance_time_limit = request.POST.get('attendance_time_limit')
+        face_recognition_threshold = request.POST.get('face_recognition_threshold')
+
+        # Update the settings object with the new values
+        if attendance_time_limit:
+            settings.attendance_time_limit = int(attendance_time_limit)  # Convert to int
+        if face_recognition_threshold:
+            settings.face_recognition_threshold = float(face_recognition_threshold)  # Convert to float
+
+        # Save the updated settings to the database
+        settings.save()
+
+        # Redirect to the settings page after saving
+        return redirect('admin_settings')
+
+    elif request.method == 'GET':
+        # If it's a GET request, return the current settings as JSON
+        return JsonResponse({
+            'attendance_time_limit': settings.attendance_time_limit,
+            'face_recognition_threshold': settings.face_recognition_threshold,
+        })
+
+    # For rendering the settings page when requested
+    context = {
+        'settings': settings,
+    }
+    return render(request, 'admin_settings.html', context)
+
 
 # Fetch all departments and render the page
 def admin_settings(request):

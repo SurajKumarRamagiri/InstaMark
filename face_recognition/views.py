@@ -14,7 +14,7 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 import requests
 from django.db.models import Q
-from face_recognition.config import ATTENDANCE_TIME_WINDOW, RECOGNITION_THRESHOLD
+from settings.views import get_system_settings
 
 
 # Create your views here.
@@ -22,14 +22,19 @@ from face_recognition.config import ATTENDANCE_TIME_WINDOW, RECOGNITION_THRESHOL
 detector = dlib.get_frontal_face_detector()
 face_rec_model = dlib.face_recognition_model_v1('utilities/dlib_face_recognition_resnet_model_v1.dat')
 shape_predictor = dlib.shape_predictor('utilities/shape_predictor_68_face_landmarks.dat')
+RECOGNITION_THRESHOLD = get_system_settings().face_recognition_threshold
+ATTENDANCE_TIME_WINDOW = timedelta(minutes=get_system_settings().attendance_time_limit)
 
 
 # Constants
-ATTENDANCE_TIME_WINDOW = timedelta(minutes=5)  # 40 minutes threshold for check-out
-HALF_PRESENT_TIME_THRESHOLD = ATTENDANCE_TIME_WINDOW/2  # 20 minutes threshold for half-present
+# ATTENDANCE_TIME_WINDOW = timedelta(minutes=5)  # 40 minutes threshold for check-out
+# HALF_PRESENT_TIME_WINDOW = ATTENDANCE_TIME_WINDOW/2  # 20 minutes threshold for half-present
 
 @csrf_exempt
 def recognise_face(request):
+    HALF_PRESENT_TIME_WINDOW = ATTENDANCE_TIME_WINDOW/2
+    print(HALF_PRESENT_TIME_WINDOW)
+    print(RECOGNITION_THRESHOLD)
     if request.method != 'POST':
         return JsonResponse({'error': 'Invalid request method'}, status=400)
 
@@ -101,11 +106,11 @@ def recognise_face(request):
             # Update the existing record based on time of recognition
             time_difference = (timezone.now() - datetime.combine(last_attendance.date, last_attendance.check_in_time))
             print(time_difference)
-            print(HALF_PRESENT_TIME_THRESHOLD)
-            if time_difference < HALF_PRESENT_TIME_THRESHOLD:
+            print(HALF_PRESENT_TIME_WINDOW)
+            if time_difference < HALF_PRESENT_TIME_WINDOW:
                 last_attendance.status = 'Absent'
                 return JsonResponse({'message': f'Attendance already marked for \n{matched_username} ({matched_full_name}). \nplease try again after some time'}, status=200)
-            elif HALF_PRESENT_TIME_THRESHOLD <= time_difference < ATTENDANCE_TIME_WINDOW:
+            elif HALF_PRESENT_TIME_WINDOW <= time_difference < ATTENDANCE_TIME_WINDOW :
                 if last_attendance.status == 'Half Present':
                     return JsonResponse({'message': f'Attendance already marked for \n{matched_username} ({matched_full_name}).'}, status=200)
                 else:
@@ -134,6 +139,7 @@ def recognise_face(request):
             check_in_time=timezone.now(),  # Mark check-in time
             check_out_time=None,
         )
+        
         return JsonResponse({'message': f'Attendance recorded for {matched_full_name} ({matched_username}).'}, status=200)
 
     except Exception as e:

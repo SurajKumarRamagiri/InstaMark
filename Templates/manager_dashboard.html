@@ -4,7 +4,7 @@
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <title>
-  User Dashboard - InstaMark
+  Manager Dashboard - InstaMark
   </title>
   <script src="https://cdn.tailwindcss.com">
   </script>
@@ -72,29 +72,30 @@
      {{ user.username }}
     </span>
     <div class="relative group">
-      <img alt="Profile picture of the logged-in admin" class="w-8 h-8 rounded-full cursor-pointer" height="30" src="https://storage.googleapis.com/a1aa/image/jILHEkoHM96fF6JsotzCQJkJZJzfa6D1dXDCfn5T7hTBpLePB.jpg" width="30"/>
-      <div class="absolute right-0 mt-2 w-64 bg-white text-black shadow-lg rounded-lg hidden group-hover:flex flex-col items-center p-4 space-y-2">
-       <img alt="Profile picture of the logged-in admin in the overlay" class="w-16 h-16 rounded-full" src="https://storage.googleapis.com/a1aa/image/jILHEkoHM96fF6JsotzCQJkJZJzfa6D1dXDCfn5T7hTBpLePB.jpg"/>
-       <span class="font-semibold">
-        {{ user.first_name }}{{' '}}{{ user.last_name}}
-       </span>
-       <span class="text-sm text-gray-600">
-        {{ user }}
-       </span>
-       <span class="text-sm text-gray-600">
-        {{ user.email }}
-       </span>
-       <span class="text-sm text-gray-600">
-        Joined: {{ user.date_joined }}
-       </span>
-       <!-- <a class="block w-full text-center py-2 bg-blue-600 text-white rounded hover:bg-blue-700" href="#">
-        Profile Settings
-       </a> -->
-       <a class="block w-full text-center py-2 bg-red-600 text-white rounded hover:bg-red-700" href="{% url 'logout' %}">
-        Logout
-       </a>
-      </div>
-     </div>
+        <!-- Profile Picture -->
+        <img alt="Profile picture of the logged-in admin" 
+             class="w-8 h-8 rounded-full cursor-pointer" 
+             src="https://storage.googleapis.com/a1aa/image/jILHEkoHM96fF6JsotzCQJkJZJzfa6D1dXDCfn5T7hTBpLePB.jpg" 
+             width="30" height="30" tabindex="0"/>
+    
+        <!-- Overlay -->
+        <div class="absolute right-0 mt-2 w-64 bg-white text-black shadow-lg rounded-lg hidden group-hover:block group-focus-within:block">
+            <div class="flex flex-col items-center p-4 space-y-2">
+                <img alt="Profile picture of the logged-in admin in the overlay" 
+                     class="w-16 h-16 rounded-full" 
+                     src="https://storage.googleapis.com/a1aa/image/jILHEkoHM96fF6JsotzCQJkJZJzfa6D1dXDCfn5T7hTBpLePB.jpg"/>
+                <span class="font-semibold">{{ user.first_name }} {{ user.last_name }}</span>
+                <span class="text-sm text-gray-600">{{ user }}</span>
+                <span class="text-sm text-gray-600">{{ user.email }}</span>
+                <span class="text-sm text-gray-600">Joined: {{ user.date_joined }}</span>
+                <a class="block w-full text-center py-2 bg-red-600 text-white rounded hover:bg-red-700" 
+                   href="{% url 'logout' %}">
+                    Logout
+                </a>
+            </div>
+        </div>
+    </div>
+    
    </div>
   </header>
 
