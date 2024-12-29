@@ -1,192 +1,207 @@
 {% extends 'admin_base.html' %}
 
 {% block content %}
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Settings</title>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Department Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
-<body class="bg-gradient-to-r from-blue-100 to-purple-100 font-roboto">
-    <div class="min-h-screen flex flex-col">
-        <!-- Main Content -->
-        <main class="flex-grow container mx-auto px-6 py-8">
-            <h2 class="text-4xl font-bold text-gray-800 mb-6 text-center">Settings</h2>
-            <div class="bg-gradient-to-r from-blue-100 to-blue-200 shadow-xl rounded-lg p-8">
-                <form>
-                    <!-- General Settings -->
-                    <div class="mb-8">
-                        <h3 class="text-2xl font-semibold text-gray-800 mb-4">General Settings</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="site-name" class="block text-gray-700 font-medium">Site Name</label>
-                                <input type="text" id="site-name" class="mt-1 block w-3/4 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Enter site name">
-                            </div>
-                            <div>
-                                <label for="admin-email" class="block text-gray-700 font-medium">Admin Email</label>
-                                <input type="email" id="admin-email" class="mt-1 block w-3/4 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Enter admin email">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Face Recognition Settings -->
-                    <div class="mb-8">
-                        <h3 class="text-2xl font-semibold text-gray-800 mb-4">Face Recognition Settings</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="recognition-threshold" class="block text-gray-700 font-medium">Recognition Threshold</label>
-                                <input type="number" id="recognition-threshold" class="mt-1 block w-3/4 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Enter threshold value">
-                            </div>
-                            <div>
-                                <label for="max-retries" class="block text-gray-700 font-medium">Max Retries</label>
-                                <input type="number" id="max-retries" class="mt-1 block w-3/4 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Enter max retries">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Security Settings -->
-                    <div class="mb-8">
-                        <h3 class="text-2xl font-semibold text-gray-800 mb-4">Security Settings</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="password-policy" class="block text-gray-700 font-medium">Password Policy</label>
-                                <select id="password-policy" class="mt-1 block w-3/4 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                                    <option value="strong">Strong</option>
-                                    <option value="medium">Medium</option>
-                                    <option value="weak">Weak</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="two-factor-auth" class="block text-gray-700 font-medium">Two-Factor Authentication</label>
-                                <select id="two-factor-auth" class="mt-1 block w-3/4 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                                    <option value="enabled">Enabled</option>
-                                    <option value="disabled">Disabled</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Appearance Settings -->
-                    <div class="mb-8">
-                        <h3 class="text-2xl font-semibold text-gray-800 mb-4">Appearance Settings</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="theme" class="block text-gray-700 font-medium">Theme</label>
-                                <select id="theme" class="mt-1 block w-3/4 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                                    <option value="light">Light</option>
-                                    <option value="dark">Dark</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="logo" class="block text-gray-700 font-medium">Logo</label>
-                                <input type="file" id="logo" class="mt-1 block w-3/4 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- User Management Settings -->
-                    <div class="mb-8">
-                        <h3 class="text-2xl font-semibold text-gray-800 mb-4">User Management Settings</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="user-roles" class="block text-gray-700 font-medium">User Roles</label>
-                                <select id="user-roles" class="mt-1 block w-3/4 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                                    <option value="admin">superuser</option>
-                                    <option value="editor">manager</option>
-                                    <option value="viewer">regular</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="account-activation" class="block text-gray-700 font-medium">Account Activation</label>
-                                <select id="account-activation" class="mt-1 block w-3/4 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                                    <option value="auto">Automatic</option>
-                                    <option value="manual">Manual</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- manage_departments.html -->
-                    <div class="mb-8">
-                        <h3 class="text-2xl font-semibold text-gray-800 mb-4">Manage Departments</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <form method="POST" action="{% url 'manage_departments' %}">
-                                {% csrf_token %}
-                                <div>
-                                    <label for="name" class="block text-gray-700 font-medium">Department Name</label>
-                                    <input type="text" id="name" name="name" class="mt-1 block w-3/4 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Enter department name" required>
-                                </div>
-                                <div class="flex items-end">
-                                    <button type="submit" name="add_department" class="bg-green-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-green-700">Add Department</button>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="mt-6">
-                            <h4 class="text-lg font-semibold text-gray-800 mb-4">Existing Departments</h4>
-                            <ul class="space-y-4">
+<body class="bg-gray-100 font-roboto">
+    <div class="container mx-auto p-4">
+        <h1 class="text-2xl font-bold mb-4">Manage Departments</h1>
+        <div class="bg-white p-6 rounded-lg shadow-lg flex flex-col lg:flex-row lg:space-x-8">
+            <!-- Department List -->
+            <div class="lg:w-2/3">
+                <h2 class="text-2xl font-bold mb-4">Departments</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white">
+                        <thead>
+                            <tr>
+                                <th class="py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-600">Department Name</th>
+                                <th class="py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-sm font-semibold text-gray-600">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="department-list">
+                            <!-- Departments will be dynamically added here -->
+                            {% if departments %}
                                 {% for department in departments %}
-                                    <li class="flex justify-between items-center bg-gray-100 p-4 rounded-lg shadow-sm">
-                                        <span id="department-name-{{ department.id }}">{{ department.name }}</span>
-                                        <div class="flex space-x-2">
-                                            <form method="POST" action="{% url 'manage_departments' %}" class="edit-form" style="display: none;">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="department_id" value="{{ department.id }}">
-                                                <input type="text" name="name" value="{{ department.name }}" required>
-                                                <button type="submit" name="edit_department" class="bg-yellow-500 text-white px-3 py-1 rounded-lg shadow-sm hover:bg-yellow-600">Save</button>
-                                                <button type="button" class="bg-red-600 text-white px-3 py-1 rounded-lg shadow-sm hover:bg-red-700" onclick="toggleEdit('{{ department.id }}', false)">Cancel</button>
-                                            </form>
-
-                                            <button onclick="toggleEdit('{{ department.id }}', true)" class="bg-yellow-500 text-white px-3 py-1 rounded-lg shadow-sm hover:bg-yellow-600">Edit</button>
-                                            <form method="POST" action="{% url 'manage_departments' %}" style="display: inline;">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="department_id" value="{{ department.id }}">
-                                                <button type="submit" name="delete_department" class="bg-red-600 text-white px-3 py-1 rounded-lg shadow-sm hover:bg-red-700" onclick="return confirm('Are you sure you want to delete this department?');">Delete</button>
-                                            </form>
-                                        </div>
-                                    </li>
-                                {% empty %}
-                                    <p>No departments available.</p>
+                                <tr id="department-{{ department.id }}">
+                                    <td class="py-2 px-4 border-b border-gray-200">{{ department.name }}</td>
+                                    <td class="py-2 px-4 border-b border-gray-200">
+                                        <button class="text-blue-500 hover:text-blue-700 mr-2 edit-department" data-id="{{ department.id }}" data-name="{{ department.name }}"><i class="fas fa-edit"></i></button>
+                                        <button class="text-red-500 hover:text-red-700 delete-department" data-id="{{ department.id }}"><i class="fas fa-trash-alt"></i></button>
+                                    </td>
+                                </tr>
                                 {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
+                            {% else %}
+                                <tr>
+                                    <td colspan='2'>No departments found.</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-                    <script>
-                        function toggleEdit(departmentId, show) {
-                            const editForm = document.querySelector(`.edit-form input[type="hidden"][value="${departmentId}"]`).closest('form');
-                            if (show) {
-                                editForm.style.display = 'block';
-                            } else {
-                                editForm.style.display = 'none';
-                            }
-                        }
-                    </script>
-
-                    <!-- Save Button -->
-                    <div class="flex justify-end">
-                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-700">Save Settings</button>
+            <!-- Add Department Form -->
+            <div class="bg-white p-6 rounded-lg shadow-lg lg:w-1/3 mt-8 lg:mt-0 h-64">
+                <h2 class="text-2xl font-bold mb-4">Add Department</h2>
+                <form id="add-department-form" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label for="department-name" class="block text-sm font-medium text-gray-700">Department Name</label>
+                        <input type="text" id="department-name" name="department_name" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
                     </div>
+                    <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mt-4">Add Department</button>
                 </form>
             </div>
-        </main>
+        </div>
     </div>
+
+    <!-- Edit Department Modal -->
+    <div id="edit-department-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <h2 class="text-2xl font-bold mb-4">Edit Department</h2>
+            <form id="edit-department-form">
+                {% csrf_token %}
+                <div>
+                    <label for="edit-department-name" class="block text-sm font-medium text-gray-700">Department Name</label>
+                    <input type="text" id="edit-department-name" name="department_name" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
+                </div>
+                <div class="mt-4 flex justify-end space-x-2">
+                    <button type="button" id="cancel-edit" class="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-700">Cancel</button>
+                    <button type="submit" class="bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Fetch and display departments from the backend
+        function loadDepartments() {
+            $.ajax({
+                url: "/admin/settings/",
+                method: "GET",
+                success: function(response) {
+                    console.log(response.data)
+                    const departmentList = $("#department-list");
+                    // departmentList.empty(); // Clear existing rows
+                    if (response.departments && response.departments.length > 0) {
+                        response.departments.forEach(dept => {
+                            departmentList.append(`
+                                <tr id="department-${dept.id}">
+                                    <td class="py-2 px-4 border-b border-gray-200">${dept.name}</td>
+                                    <td class="py-2 px-4 border-b border-gray-200">
+                                        <button class="text-blue-500 hover:text-blue-700 mr-2 edit-department" data-id="${dept.id}" data-name="${dept.name}"><i class="fas fa-edit"></i></button>
+                                        <button class="text-red-500 hover:text-red-700 delete-department" data-id="${dept.id}"><i class="fas fa-trash-alt"></i></button>
+                                    </td>
+                                </tr>
+                            `);
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error loading departments:", error);
+                    alert("Failed to load departments. Please try again.");
+                }
+            });
+        }
+
+        // Handle Add Department Form Submission
+        $("#add-department-form").on("submit", function(e) {
+            e.preventDefault();
+            const departmentName = $("#department-name").val();
+            $.ajax({
+                url: "/add-department/",
+                method: "POST",
+                data: {
+                    name: departmentName,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert("Department added successfully!", "success");
+                        loadDepartments(); // Refresh the list
+                        $("#department-name").val(""); // Clear input field
+                    }
+                },
+                error: function(xhr) {
+                    alert("Failed to add department. Please try again.");
+                }
+            });
+        });
+
+        // Open Edit Modal
+        $(document).on("click", ".edit-department", function() {
+            const departmentId = $(this).data("id");
+            const departmentName = $(this).data("name");
+            $("#edit-department-name").val(departmentName);
+            $("#edit-department-modal").data("id", departmentId).removeClass("hidden");
+        });
+
+        // Close Edit Modal
+        $("#cancel-edit").on("click", function() {
+            $("#edit-department-modal").addClass("hidden");
+        });
+
+        // Handle Edit Department Form Submission
+        $("#edit-department-form").on("submit", function(e) {
+            e.preventDefault();
+            const departmentId = $("#edit-department-modal").data("id");
+            const departmentName = $("#edit-department-name").val();
+            $.ajax({
+                url: `/edit-department/`,
+                method: "PUT",
+                data: {
+                    id: departmentId,
+                    name: departmentName,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function() {
+                    alert("Department updated successfully!", "success");
+                    loadDepartments(); // Refresh the list
+                    $("#edit-department-modal").addClass("hidden");
+                },
+                error: function(xhr) {
+                    alert("Failed to update department. Please try again.");
+                }
+            });
+        });
+
+        // Handle delete department
+        $(document).on("click", ".delete-department", function() {
+            const departmentId = $(this).data("id");
+            $.ajax({
+                url: "/delete-department/",
+                method: "POST",  // Use POST instead of DELETE
+                data: {
+                    id: departmentId,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',  // Include CSRF token for security
+                    action: 'delete'  // Explicitly simulate delete action in the request
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert("Department deleted successfully!", "success");
+                        loadDepartments(); // Refresh the department list after deletion
+                    } else {
+                        alert("Failed to delete department. " + response.error);
+                    }
+                },
+                error: function(xhr) {
+                    alert("Failed to delete department. Please try again.");
+                }
+            });
+        });
+
+    </script>
 </body>
 </html>
-<script>
-    function toggleEdit(departmentId, isEditing) {
-        const nameSpan = document.getElementById(`department-name-${departmentId}`);
-        const editForm = nameSpan.nextElementSibling;
 
-        if (isEditing) {
-            nameSpan.style.display = 'none';
-            editForm.style.display = 'inline-block';
-        } else {
-            nameSpan.style.display = 'inline-block';
-            editForm.style.display = 'none';
-        }
-    }
-</script>
+
 {% endblock %}

@@ -17,30 +17,61 @@ from django.shortcuts import render
 from django.utils.timezone import now,localdate,timedelta
 from attendance.models import Attendance
 from users.forms import DepartmentForm
+from django.utils.decorators import method_decorator
+from django.http import QueryDict
+from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
+from django.views import View
 
-# View for editing a department
-def edit_department(request, department_id):
-    department = get_object_or_404(Department, id=department_id)
+# Fetch all departments and render the page
+def admin_settings(request):
+    if request.method == "GET":
+        # Get all departments
+        departments = Department.objects.all().values('id', 'name')
+        return JsonResponse({"departments": list(departments)})
 
+    return render(request, 'admin_settings.html')
+
+# Add a new department
+@csrf_exempt
+def add_department(request):
     if request.method == 'POST':
-        form = DepartmentForm(request.POST, instance=department)
-        if form.is_valid():
-            form.save()
-            return redirect('admin_settings')  # Redirect to the list of departments
-    else:
-        form = DepartmentForm(instance=department)
-    
-    return render(request, 'admin_settings.html', {'form': form, 'department': department})
+        name = request.POST.get("name")
+        if name:
+            department = Department.objects.create(name=name)
+            return JsonResponse({"success": True, "id": department.id, "name": department.name})
+        return JsonResponse({"success": False, "error": "Name is required."})
 
-# View for deleting a department
-def delete_department(request, department_id):
-    department = get_object_or_404(Department, id=department_id)
-    
+# Edit department
+@csrf_exempt
+def edit_department(request):
+    if request.method == 'PUT':
+        put_data = QueryDict(request.body)
+        department_id = put_data.get("id")
+        department_name = put_data.get("name")
+        department = get_object_or_404(Department, id=department_id)
+        department.name = department_name
+        department.save()
+        return JsonResponse({"success": True})
+
+# Delete department
+
+@csrf_exempt  # disables CSRF protection
+def delete_department(request):
     if request.method == 'POST':
-        department.delete()
-        return JsonResponse({'success': True})
-    else:
-        return JsonResponse({'success': False})
+        action = request.POST.get('action')
+        if action == 'delete':  # Check if the action is to delete
+            department_id = request.POST.get('id')  # Get department ID
+            department = get_object_or_404(Department, id=department_id)
+            department.delete()  # Delete the department
+            return JsonResponse({"success": True})
+        else:
+            return JsonResponse({"success": False, "error": "Invalid action."})
+    
+    return JsonResponse({"success": False, "error": "Invalid method."})
+
+
 
 def admin_reports(request):
     # Query all attendance records
@@ -183,7 +214,7 @@ def manager_dashboard(request):
     # Pass the data to the template
     return render(request, 'manager_dashboard.html', { 'departments': departments,})
 
-
+@csrf_exempt
 def admin_settings(request):
     departments=Department.objects.all()
     return render(request,'admin_settings.html',{'departments': departments})

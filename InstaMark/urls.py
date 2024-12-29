@@ -24,8 +24,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('admin/department/edit/<int:department_id>/', views.edit_department, name='edit_department'),
-    path('admin/department/delete/<int:department_id>/', views.delete_department, name='delete_department'),
+    path('add-department/', views.add_department, name='add_department'),
+    path('edit-department/', views.edit_department, name='edit_department'),
+    path('delete-department/', views.delete_department, name='delete_department'),
     path('face_recognition/', include('face_recognition.urls')),
     path('attendance/', include('attendance.urls')),
     path('users/', include('users.urls')),
