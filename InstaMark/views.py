@@ -217,6 +217,10 @@ def manager_dashboard(request):
 @csrf_exempt
 def admin_settings(request):
     departments=Department.objects.all()
+    if request.method == "POST":
+        # Create a list of department dictionaries with id and name
+        data = [{"id": dept.id, "name": dept.name} for dept in departments]
+        return JsonResponse({'departments': data})
     return render(request,'admin_settings.html',{'departments': departments})
 
 def settings(request):

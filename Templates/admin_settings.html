@@ -29,7 +29,7 @@
                         </thead>
                         <tbody id="department-list">
                             <!-- Departments will be dynamically added here -->
-                            {% if departments %}
+                            <!-- {% if departments %}
                                 {% for department in departments %}
                                 <tr id="department-{{ department.id }}">
                                     <td class="py-2 px-4 border-b border-gray-200">{{ department.name }}</td>
@@ -43,7 +43,7 @@
                                 <tr>
                                     <td colspan='2'>No departments found.</td>
                                 </tr>
-                            {% endif %}
+                            {% endif %} -->
                         </tbody>
                     </table>
                 </div>
@@ -87,11 +87,11 @@
         function loadDepartments() {
             $.ajax({
                 url: "/admin/settings/",
-                method: "GET",
+                method: "POST",
                 success: function(response) {
-                    console.log(response.data)
+                    console.log(response)
                     const departmentList = $("#department-list");
-                    // departmentList.empty(); // Clear existing rows
+                    departmentList.empty(); // Clear existing rows
                     if (response.departments && response.departments.length > 0) {
                         response.departments.forEach(dept => {
                             departmentList.append(`
@@ -104,6 +104,10 @@
                                 </tr>
                             `);
                         });
+                    }
+                    else {
+                        // If no departments exist, show this message
+                        departmentList.append("<tr><td colspan='2' class='text-center'>No departments found.</td></tr>");
                     }
                 },
                 error: function(xhr, status, error) {
@@ -198,7 +202,7 @@
                 }
             });
         });
-
+        loadDepartments()
     </script>
 </body>
 </html>
