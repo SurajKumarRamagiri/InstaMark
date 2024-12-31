@@ -35,7 +35,8 @@ def send_notification_email(subject, message, recipient_email):
         send_mail(
             subject,
             message,
-            settings.EMAIL_HOST_USER,  # Sender's email
+            settings.DEFAULT_FROM_EMAIL,
+            settings.EMAIL_HOST_USER  # Sender's email
             [recipient_email],  # List of recipients
             fail_silently=False,  # Don't fail silently, show errors
         )
@@ -186,6 +187,55 @@ def admin_reports(request):
         'departments': departments
     }
     return render(request, 'admin_reports.html', context)
+
+# def admin_reports(request):
+#     # Get filter parameters from the GET request
+
+#     # Start with attendance records
+#     queryset = Attendance.objects.values(
+#         'user_profile__user__username',
+#         'user_profile__user__first_name',
+#         'user_profile__user__last_name',
+#         'department__name',
+#     ).annotate(
+#         total_days=Count('date', distinct=True),
+#         present_days=Count(Case(When(status='Present', then=1))),
+#         half_present_days=Count(Case(When(status='Half Present', then=1))),
+#         absent_days=Count(Case(When(status='Absent', then=1))),
+#     ).annotate(
+#         percentage=Case(
+#             When(total_days__gt=0, then=((F('present_days') + F('half_present_days') * 0.5) * 100.0 / F('total_days'))),
+#             default=0,
+#             output_field=FloatField(),
+#         ),
+#         full_name=Concat(F('user_profile__user__first_name'), Value(' '), F('user_profile__user__last_name')),
+#     )
+
+
+#     # Prepare the response data
+#     data = [
+#         {
+#             'username': record['user_profile__user__username'],
+#             'full_name': record['full_name'],
+#             'department_name': record['department__name'],
+#             'total_days': record['total_days'],
+#             'present_days': record['present_days'],
+#             'half_present_days': record['half_present_days'],
+#             'absent_days': record['absent_days'],
+#             'attendance_percentage': round(record['percentage'], 2),  # Round to 2 decimal places
+#         }
+#         for record in queryset
+#     ]
+#     print(data)
+#     # Return the data as a JSON response
+#     return JsonResponse(data, safe=False)
+#     # Context for rendering the template
+#   context = {
+#         'attendance_data': attendance_data,
+#         'departments': departments
+#   }
+#    return render(request, 'admin_reports.html',)
+
 
 def user_dashboard(request):
     user = request.user  # get logged-in user

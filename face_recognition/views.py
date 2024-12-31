@@ -15,6 +15,7 @@ from datetime import datetime, timedelta
 import requests
 from django.db.models import Q
 from settings.views import get_system_settings
+from InstaMark.views import send_notification_email
 
 
 # Create your views here.
@@ -118,6 +119,11 @@ def recognise_face(request):
                     last_attendance.check_out_time = timezone.now()
             elif time_difference >= ATTENDANCE_TIME_WINDOW:
                 if last_attendance.status == "Half Present" or last_attendance.status == "Present":
+                    send_notification_email(
+                        recipient_email = matched_user.user.email,
+                        subject = 'Attendance Marked',
+                        message = f'Your attendance has been marked as {last_attendance.status} on {timezone.now()}.\n Visit your Attendance Portal for more details',
+                    )
                     return JsonResponse({'message': f'Attendance already marked for \n{matched_username} ({matched_full_name}).'}, status=200)
                 else:
                     last_attendance.status = 'Present'
@@ -138,6 +144,11 @@ def recognise_face(request):
             status='Absent',  # Initially mark as Absent
             check_in_time=timezone.now(),  # Mark check-in time
             check_out_time=None,
+        )
+        send_notification_email(
+            recipient_email = matched_user.user.email,
+            subject = 'Attendance Marked',
+            message = f'Your attendance has been marked at check-in time {timezone.now()}',
         )
         
         return JsonResponse({'message': f'Attendance recorded for {matched_full_name} ({matched_username}).'}, status=200)

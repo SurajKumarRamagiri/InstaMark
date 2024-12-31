@@ -151,10 +151,10 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 # Email settings in settings.py
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  # Use your email provider's SMTP server
 EMAIL_PORT = 587  # Common SMTP port
 EMAIL_USE_TLS = True  # TLS security
 EMAIL_HOST_USER = 'instamark.attendancetracker@gmail.com'  # Your email address
-EMAIL_HOST_PASSWORD = 'InstaMark@1412'  # Your email password or app-specific password
+EMAIL_HOST_PASSWORD = 'vceo ghee wnzo ovpf'  # Your email password or app-specific password
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Default from email
