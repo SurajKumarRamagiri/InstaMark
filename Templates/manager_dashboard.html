@@ -156,6 +156,7 @@
                 <table class="min-w-full bg-white" id="attendance-table">
                     <thead>
                         <tr>
+                            <th class="py-2 px-4 border-b border-gray-200 bg-gray-100">username</th>
                             <th class="py-2 px-4 border-b border-gray-200 bg-gray-100">Name</th>
                             <th class="py-2 px-4 border-b border-gray-200 bg-gray-100">Status</th>
                             <th class="py-2 px-4 border-b border-gray-200 bg-gray-100">Date</th>
@@ -259,6 +260,7 @@
                     data.forEach(record => {
                         const newRow = document.createElement("tr");
                         newRow.innerHTML = `
+                            <td class="text-center border-b p-3">${record.username}</td>
                             <td class="text-center border-b p-3">${record.fullname}</td>
                             <td class="text-center border-b p-3">${record.status}</td>
                             <td class="text-center border-b p-3">${new Date(record.date).toLocaleDateString()}</td>

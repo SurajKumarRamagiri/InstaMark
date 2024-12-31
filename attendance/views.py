@@ -89,7 +89,7 @@ def filtered_reports(request):
 def get_records(request):
     if request.method == 'GET':
         department_id = request.GET.get('department_id')
-        records = Attendance.objects.filter(department_id=department_id).values('fullname', 'date', 'status', 'check_in_time','check_out_time')
+        records = Attendance.objects.filter(department_id=department_id).values('username','fullname', 'date', 'status', 'check_in_time','check_out_time')
         return JsonResponse(list(records), safe=False)
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
