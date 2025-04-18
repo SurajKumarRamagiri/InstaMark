@@ -11,8 +11,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
 import os
-
+load_dotenv()
 
 LOGOUT_REDIRECT_URL = 'login'  # Redirect to the login page after logging out
 
@@ -24,7 +25,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-n2p7+plp6qpd276zkp8_9d!ktre9gop+5*a-h36b1zam@=u$n)"
+# SECRET_KEY = "django-insecure-n2p7+plp6qpd276zkp8_9d!ktre9gop+5*a-h36b1zam@=u$n)"
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -36,7 +38,6 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'settings',
-    'crispy_forms',
     'face_recognition',
     'attendance',
     'users',
@@ -88,13 +89,21 @@ WSGI_APPLICATION = "InstaMark.wsgi.application"
 
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'instamark',
-        'USER': 'root',
-        'PASSWORD': 'password',
-        'HOST': 'localhost',
-        'PORT': '3306',
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'instamark',
+    #     'USER': 'root',
+    #     'PASSWORD': 'password',
+    #     'HOST': 'localhost',
+    #     'PORT': '3306',
+    # }
+    'default':{
+        'ENGINE':'django.db.backends.mysql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 
